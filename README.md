@@ -20,6 +20,8 @@ commit and content hash pinned in [`orca-catalog.json`](orca-catalog.json).
 ## Layout
 
 - `orca-catalog.json` — the catalog (format 2).
+- `assets/<plugin-id>/` — each plugin's icon, cover and screenshots for the catalog listing, copied
+  from its latest release by `scripts/release-plugin.sh`.
 - `plugins/<name>` — each plugin as a git submodule of its own repository, pinned to its latest
   release. Clone with `git clone --recurse-submodules`.
 - `scripts/` — creating, releasing and protecting plugin repositories.
