@@ -84,9 +84,16 @@ orca plugin shot local.<id> --editor <file>   # PNG редактора — см�
 - Id плагинов, начинающиеся с `orca-`, зарезервированы; publisher = владелец репозитория
   (`sergei-popov`), id в каталоге — `sergei-popov.<id>`.
 - Сеть во фреймах закрыта, `eval` запрещён; библиотеки — копией ESM в плагин.
+- Сама Orca открывает картинки (`.png .jpg .gif .svg .webp .bmp .ico`), PDF, CSV, Markdown и
+  ноутбуки. Изолированный фрейм (`frame: "isolated"`) разрешает `blob:` для картинок и медиа и
+  WebAssembly, но `font-src` — только `'self' data:`.
+- Левый сайдбар (задачи, артефакты, автоматизации) плагинам закрыт: панели встают только в правый.
+  `contributes.sidebarCards` зарезервирован под декларативные карточки, не под произвольный UI.
 
 ## Плагины
 
 | Плагин         | Репозиторий                         | Что делает                                   |
 | -------------- | ----------------------------------- | -------------------------------------------- |
 | `media-viewer` | `Sergei-Popov/orca-media-viewer`    | Видео и аудио во вкладках Orca (Media Player) |
+| `archive-viewer` | `Sergei-Popov/orca-archive-viewer` | Архивы `.zip`/`.jar`/`.tar.gz` во вкладке: дерево файлов, превью, сохранение файла |
+| `font-viewer`  | `Sergei-Popov/orca-font-viewer`     | Шрифты `.ttf`/`.otf`/`.woff`/`.woff2` во вкладке: образец, символы, оси, сведения |
