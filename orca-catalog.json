@@ -133,6 +133,95 @@
       ]
     },
     {
+      "id": "sergei-popov.font-viewer",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-font-viewer.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "00b200c1855e06251fe93ebba10336955b417709",
+          "contentHash": "07615befae4e1e893cd00f990ec1222690bdeb0bc2ceecffc5188ba86aca0f67",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Font Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Font Viewer",
+              "detail": ".ttf, .otf, .woff, .woff2, .ttc, .otc"
+            }
+          ],
+          "fileTypes": [
+            "ttf",
+            "otf",
+            "woff",
+            "woff2",
+            "ttc",
+            "otc"
+          ],
+          "editorFileTypes": [
+            "ttf",
+            "otf",
+            "woff",
+            "woff2",
+            "ttc",
+            "otc"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.font-viewer/images/icon.png",
+              "alt": "Font Viewer",
+              "sha256": "03e0193fc29ab88a31eab9115200837d1c3567738c7aa8cbaf1ad1703945bbda",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.font-viewer/images/cover.png",
+              "alt": "Inter in Font Viewer: sample text, a waterfall of sizes and the alphabets, with the optical size and weight axes and OpenType features on the right.",
+              "sha256": "c8d20edfe2f4b5ffe85016f325337074f4d9b1a4c3d14120d7840b2ace7314e1",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.font-viewer/images/preview-light.png",
+                "alt": "Source Serif 4 at weight 602 with Orca's light theme: sample text, the size waterfall, the Weight and Optical Size sliders and OpenType features.",
+                "sha256": "890c55f62fe6eeafee5d0398ea10d5d07cbc4881786c7c50f83c4a8ac143dc6c",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.font-viewer/images/characters-dark.png",
+                "alt": "Inter's Characters tab with Orca's dark theme: a grid of characters with code points, the ampersand selected with its HTML, CSS and JavaScript forms.",
+                "sha256": "50279c109b6677f23ed5e2463073a373289dfd68468d8802047e6070a7c5338b",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.font-viewer/images/info-light.png",
+                "alt": "The Info tab for Lora with Orca's light theme: names, designer and vendor links, style and metrics, the weight axis and the licence.",
+                "sha256": "af264823fe1cc9b8e458d9b7cc16a96706bd9aa95b37e67665baf8c6759a1bc8",
+                "width": 1440,
+                "height": 900
+              }
+            ]
+          },
+          "license": "MIT AND Apache-2.0",
+          "repository": "https://github.com/Sergei-Popov/orca-font-viewer",
+          "changelog": "Added\n\n- **Font Viewer** custom editor for .ttf, .otf, .woff, .woff2, .ttc and .otc: the\n  default view for these files, read-only and offline.\n- Preview tab: editable sample text (a Russian pangram for a Russian UI when the font has\n  Cyrillic, else the font's own sample or an English pangram), size from 8 to 200 px with\n  presets, line height, a waterfall of nine sizes and the alphabet lines the font covers.\n- Variable fonts: a slider per axis that reaches the axis's exact minimum, maximum and default,\n  and the named instances; only the axes you move or an instance sets are applied, so the browser\n  keeps its automatic optical size. OpenType feature switches with readable names (stylistic sets\n  use the names the font gives them).\n- Collections: a face picker; only the chosen face is read in full and drawn on its own, and a\n  face that cannot be read is marked in the picker while the others still open.\n- Characters tab: every mapped character grouped by Unicode block, drawn only where it is on\n  screen, a search by character, U+0416, a U+0400-04FF range or the words of a block name\n  (latin-1, box draw, IPA ext), a block filter, arrow-key navigation that keeps its column\n  across blocks, and a detail panel with the character large on its baseline and its code\n  point as U+, decimal, HTML, CSS, JavaScript and UTF-8, each with a copy button.\n- Info tab: names (links open in the browser through Orca), weight, width, metrics, licence,\n  embedding rights, format, outlines, file size, glyph and character counts, dates, colour\n  formats, problems found while reading (tables cut off by the end of the file, a damaged\n  character map skipped for the next one), and the table directory. A font whose head, name\n  or cmap is missing or cut off gets a \"damaged\" message instead of an empty view.\n- Font parser for sfnt, collections, WOFF 1.0 (fflate) and WOFF 2.0 (brotli.js), unit-tested on\n  fonts built by tools/make-fixtures.py and on damaged and hostile fonts built in the test",
+          "updatedAt": "2026-11-14"
+        }
+      ],
+      "description": "Fonts in Orca's editor tabs: opens .ttf, .otf, .woff, .woff2, .ttc and .otc files with sample text at any size, a waterfall of sizes, variable axes and named instances, OpenType feature switches, every character grouped by Unicode block with code points to copy, and the font's names, metrics, licence, embedding rights and tables. Works offline, never edits the file.",
+      "categories": [
+        "viewers",
+        "design"
+      ]
+    },
+    {
       "id": "sergei-popov.media-viewer",
       "source": {
         "kind": "git",
