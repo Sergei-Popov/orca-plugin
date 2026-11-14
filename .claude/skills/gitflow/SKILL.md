@@ -73,6 +73,12 @@ catalog by hand on a hub `release/<name>-<x.y.z>` branch (see `scripts/release-p
 
 - Commit only when the user asked for it; never commit on `main` or straight on `develop`.
 - `--no-ff` for every merge into `develop` and `main`, so each feature/release stays visible.
+- A release or hotfix branch merges into `main` and back into `develop` as two separate `--no-ff`
+  merges. Afterwards `develop` is one merge commit ahead of `main` and behind it by the
+  `Release …` commits, with the same files: that is expected, leave it. Never even the branches
+  out (no fast-forward of `develop` to `main`, no merging `main` into `develop`) and never open
+  or merge a pull request `develop` → `main`; ignore GitHub's "Compare & pull request" banner
+  after pushing `develop`. `main` only receives release and hotfix merges.
 - Never rewrite pushed history; force-push is blocked on `main`/`develop` anyway.
 - Submodules in the hub are pinned to plugin release commits; `.gitmodules` sets `ignore = all`,
   so plugin development does not dirty the hub. Do not run `git submodule update` inside a
