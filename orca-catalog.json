@@ -13,6 +13,126 @@
       },
       "releases": [
         {
+          "version": "0.3.0",
+          "commit": "3fe63fd60f4583fb997d4fa630898e2bbb245b59",
+          "contentHash": "e51eef294e739765cf0383f2aafcc6f45579630458fe14b723c4bea3e2582105",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Media Viewer",
+          "contributes": [
+            {
+              "kind": "iconThemes",
+              "name": "Media Viewer"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mkv, .avi"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mka, .weba"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp4, .m4v, .mov, .webm"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp3, .wav, .m4a, .aac, .ogg, .oga, .flac, .opus"
+            }
+          ],
+          "fileTypes": [
+            "mkv",
+            "avi",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
+          "editorFileTypes": [
+            "mkv",
+            "avi",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.media-viewer/images/icon.png",
+              "alt": "Media Viewer",
+              "sha256": "bf2cc939d40f93771be6f0e87d5a3276d6ca9b4f3129380840eb520ab6689786",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.media-viewer/images/cover.png",
+              "alt": "Media Player in an Orca tab: a paused clip of a sunset over hills, with the seek bar, volume, speed, repeat, snapshot, fit, info and full screen controls below.",
+              "sha256": "98474359409cec11b85e0670cedfd9b75c9b4d145e332e33721588e7139ca0a9",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.media-viewer/images/player-dark.png",
+                "alt": "An .mkv video paused at 0:12 in the Media Player tab with Orca's dark theme.",
+                "sha256": "e23dc1ebd7aadf127155f18c46072f5f2f54808d643e6cc887fd7ea5d82d0a7c",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.media-viewer/images/player-light.png",
+                "alt": "The same video in the Media Player tab with Orca's light theme.",
+                "sha256": "55c2234aeecd0074049b20aca3cfab9cecfdcbf668cbb873acf26105c53c5bca",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.media-viewer/images/info.png",
+                "alt": "The file info overlay over the video: file, size 1.9 MB, resolution 1920 × 1080, duration 0:30, frame rate, type .mkv.",
+                "sha256": "fc2d793314470202e053ba2f77e48b6687ebf8557e6bc70596ac806802f76c2f",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.media-viewer/images/audio.png",
+                "alt": "An audio file in the Media Player: a music note cover above the seek bar at 1:04 of 3:34.",
+                "sha256": "df7e5709721d73228b3371e3bd064e442b9952453ea465b2537c01706b9ed314",
+                "width": 1440,
+                "height": 900
+              }
+            ]
+          },
+          "license": "MIT AND LGPL-2.1-or-later",
+          "repository": "https://github.com/Sergei-Popov/orca-media-viewer",
+          "changelog": "Added\n\n- .avi opens in Media Player instead of \"Binary file — cannot display\". The tab converts it to MP4 offline when it opens (FFmpeg in WebAssembly decodes, the browser's WebCodecs encoders write H.264 or VP9 with Opus or AAC) and shows the progress. Video: Xvid, DivX 3/4/5, MPEG-4, H.264, H.263, MJPEG, MPEG-1/2; sound: MP3, MP2, AC3, AAC, PCM, ADPCM, surround mixed down to stereo. Unsupported codecs and damaged files get a clear message.\n\nChanged\n\n- License is now MIT AND LGPL-2.1-or-later: the bundled FFmpeg decoder (vendor/ffmpeg) is LGPL; its source and build script are in wasm/.",
+          "updatedAt": "2026-11-14"
+        },
+        {
           "version": "0.2.0",
           "commit": "5d49dc7f62845326974d6120bc7347257f42df25",
           "contentHash": "5b0c6f4884724de1da9fc764b2c392864149953f0188b589e35bdc660b0e12b1",
@@ -79,52 +199,6 @@
             "flac",
             "opus"
           ],
-          "images": {
-            "icon": {
-              "path": "assets/sergei-popov.media-viewer/images/icon.png",
-              "alt": "Media Viewer",
-              "sha256": "bf2cc939d40f93771be6f0e87d5a3276d6ca9b4f3129380840eb520ab6689786",
-              "width": 256,
-              "height": 256
-            },
-            "cover": {
-              "path": "assets/sergei-popov.media-viewer/images/cover.png",
-              "alt": "Media Player in an Orca tab: a paused clip of a sunset over hills, with the seek bar, volume, speed, repeat, snapshot, fit, info and full screen controls below.",
-              "sha256": "98474359409cec11b85e0670cedfd9b75c9b4d145e332e33721588e7139ca0a9",
-              "width": 1600,
-              "height": 1000
-            },
-            "screenshots": [
-              {
-                "path": "assets/sergei-popov.media-viewer/images/player-dark.png",
-                "alt": "An .mkv video paused at 0:12 in the Media Player tab with Orca's dark theme.",
-                "sha256": "e23dc1ebd7aadf127155f18c46072f5f2f54808d643e6cc887fd7ea5d82d0a7c",
-                "width": 1440,
-                "height": 900
-              },
-              {
-                "path": "assets/sergei-popov.media-viewer/images/player-light.png",
-                "alt": "The same video in the Media Player tab with Orca's light theme.",
-                "sha256": "55c2234aeecd0074049b20aca3cfab9cecfdcbf668cbb873acf26105c53c5bca",
-                "width": 1440,
-                "height": 900
-              },
-              {
-                "path": "assets/sergei-popov.media-viewer/images/info.png",
-                "alt": "The file info overlay over the video: file, size 1.9 MB, resolution 1920 × 1080, duration 0:30, frame rate, type .mkv.",
-                "sha256": "fc2d793314470202e053ba2f77e48b6687ebf8557e6bc70596ac806802f76c2f",
-                "width": 1440,
-                "height": 900
-              },
-              {
-                "path": "assets/sergei-popov.media-viewer/images/audio.png",
-                "alt": "An audio file in the Media Player: a music note cover above the seek bar at 1:04 of 3:34.",
-                "sha256": "df7e5709721d73228b3371e3bd064e442b9952453ea465b2537c01706b9ed314",
-                "width": 1440,
-                "height": 900
-              }
-            ]
-          },
           "license": "MIT",
           "repository": "https://github.com/Sergei-Popov/orca-media-viewer",
           "changelog": "Added\n\n- File icon theme \"Media Viewer\" (Settings → Appearance → Icon theme): video and audio files get their own icons in tabs, the file tree, Quick Open and search, even when Orca's built-in player opens them. It maps only media files; other files show Orca's built-in icons while it is selected.\n- Tabs opened in Media Player show a video or an audio icon instead of the plugin icon.\n\nChanged\n\n- Media Player is split into video and audio editors (media, media-audio, media-plus, media-plus-audio) so each gets its tab icon.",
@@ -247,7 +321,7 @@
           "updatedAt": "2026-11-14"
         }
       ],
-      "description": "Video and audio in Orca's editor tabs: plays .mkv, .mka and .weba, which Orca cannot show, and adds a full player view to .mp4, .mov, .webm, .mp3, .flac and other media. Speed, frame stepping, repeat, frame snapshots, file info and keyboard shortcuts.",
+      "description": "Video and audio in Orca's editor tabs: plays .mkv, .avi, .mka and .weba, which Orca cannot show (AVI is converted offline in the tab), and adds a full player view to .mp4, .mov, .webm, .mp3, .flac and other media. Speed, frame stepping, repeat, frame snapshots, file info and keyboard shortcuts.",
       "categories": [
         "media",
         "viewers"
