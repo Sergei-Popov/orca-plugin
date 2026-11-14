@@ -12,6 +12,8 @@ description: >-
 
 - The plugin's `develop` holds everything for the release (features merged `--no-ff`).
 - `CHANGELOG.md` has the changes under `## [Unreleased]`.
+- The manifest's icon, cover and screenshots show the current UI (see "Listing images" below):
+  the release copies them into the catalog, and orca.dev shows them.
 - Both the plugin and the hub working trees are clean; `gh auth status` is logged in.
 - Pick the version (semver): breaking manifest/behaviour change → major, feature → minor, fix → patch.
 
@@ -49,14 +51,40 @@ commit and hash), so ask first. Then:
 gh repo edit Sergei-Popov/orca-<name> --add-topic orca-plugin
 ```
 
-The listing appears within about an hour at `https://orca.dev/plugins/Sergei-Popov/orca-<name>`.
-An `icon` (square PNG ≥128×128, ≤256 KB), a `cover` (`images/cover.png`, 16:10, ≥800×500, ≤1 MB)
-and up to 6 `screenshots` (≥1280×800, ≤1.5 MB, optional `theme: light|dark`) in the manifest make
-the listing better. Take them with `orca plugin shot <key> --editor <file> --width 1440 --height 900`:
-it captures only the plugin, never the user's sidebar or files. Use generated demo content (silent
-clips for media), not the user's files. `--act`/`--theme` need Orca's window hidden — hide it with
-`osascript -e 'tell application "System Events" to set visible of process "Orca" to false'` and show
-it again afterwards. The player UI follows Orca's language: switch Settings → Appearance → Language
-to English for the shots and back to System after. Keys that change saved preferences (speed,
-repeat) persist between shots, and their badges fade only after ~0.7 s while acts run in
-milliseconds — avoid them or reset them in a throwaway shot.
+The listing appears within about an hour at `https://orca.dev/plugins/Sergei-Popov/orca-<name>`
+(the indexer runs every 30 minutes; until then the page says "Waiting for the indexer"). A version
+can be held "Under review" first; the status is in `status.json` of
+`stablyai/orca-community-plugins`.
+
+## Listing images
+
+An `icon` (square PNG ≥128×128, ≤256 KB), a `cover` (`images/cover.png`, 16:10, take it at
+1600×1000, ≤1 MB) and up to 6 `screenshots` (1440×900, ≤1.5 MB, `theme: light|dark`, a `caption`)
+in the manifest make the listing better. Every `alt` is at most 160 characters (`orca plugin
+validate` enforces it). Use generated demo content (silent clips for media, OFL fonts), never the
+user's files.
+
+Take them with `orca plugin shot <key> --editor <file> --width 1440 --height 900 --out <png>`: it
+captures only the plugin, never the user's sidebar or files. The UI follows Orca's language. Check
+that a shot is in English. If it is not, ask the user to switch Settings → Appearance → Language
+rather than changing it yourself.
+
+- **Without `--act` and `--theme`** a shot works with the window on screen, in Orca's current
+  theme. Take those (e.g. the cover in the dark theme) first.
+- **`--act` and `--theme` need Orca's window hidden or minimized.** A full-screen window counts as
+  on screen, and `set visible of process "Orca" to false` does nothing to it. Use
+  `scripts/orca-window.sh hide` (leaves full screen, minimizes, remembers it) and
+  `scripts/orca-window.sh show` (un-minimizes, back to full screen) — always `show` afterwards,
+  also when a shot fails.
+- The chat with the user usually runs inside Orca, so hiding the window hides the chat. Say so in
+  the chat, prepare every act first, hide once for a short batch (under a minute), then show. If
+  `--act` suddenly fails with "needs Orca's window hidden", the user has opened the window: don't
+  hide it again without saying so.
+- In zsh `${x:+--act "$x"}` stays one word and the CLI rejects it as an unknown flag. Build the
+  arguments in a bash array.
+- Editor acts are clicks and keys in the editor's CSS pixels, each waiting one paint. After an act
+  that loads something asynchronously (opening a nested file), add a few clicks on an inert spot as
+  waits. A click on an empty part of a details pane also drops a list's focus ring before the
+  capture.
+- Keys that change saved preferences (speed, repeat) persist between shots, and their badges fade
+  only after ~0.7 s while acts run in milliseconds — avoid them or reset them in a throwaway shot.

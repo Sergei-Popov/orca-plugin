@@ -8,7 +8,8 @@
 orca-plugin/                 хаб (этот репозиторий, проект Orca в группе "orca-plugin")
 ├── orca-catalog.json        каталог для Orca: Settings → Plugins → ⋯ → Catalog sources…
 ├── plugins/<name>/          submodule = отдельный репозиторий плагина = отдельный проект Orca
-├── scripts/                 new-plugin.sh, release-plugin.sh, github-protect.sh, orca-group.sh
+├── scripts/                 new-plugin.sh, release-plugin.sh, github-protect.sh, orca-group.sh,
+│                            orca-window.sh
 ├── templates/               LICENSE и CHANGELOG для новых плагинов
 └── .claude/skills/          навыки для работы с плагинами (см. ниже)
 ```
@@ -57,6 +58,7 @@ scripts/new-plugin.sh <name> --template editor --title "Name" --description "…
 scripts/release-plugin.sh <name> <x.y.z>
 scripts/orca-group.sh status
 scripts/github-protect.sh Sergei-Popov/<repo>
+scripts/orca-window.sh hide|show    # спрятать окно Orca (и из полноэкранного) для shot --act/--theme
 
 # внутри plugins/<name>
 orca plugin dev watch . --check      # загрузить в Orca, перезагрузка при сохранении, логи
