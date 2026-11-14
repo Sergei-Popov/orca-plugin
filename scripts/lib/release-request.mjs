@@ -39,6 +39,7 @@ fs.writeFileSync(
     description: manifest.description,
     categories: categories.split(',').map((c) => c.trim()).filter(Boolean),
     release,
-    changelog: changelogFor(path.join(dir, 'CHANGELOG.md'), version)
+    changelog: changelogFor(path.join(dir, 'CHANGELOG.md'), version),
+    pluginDir: path.resolve(dir)
   })
 )

@@ -114,7 +114,10 @@ ENTRY_JSON="$entry_json" node "$HUB_ROOT/scripts/lib/release-request.mjs" \
 node "$HUB_ROOT/scripts/lib/catalog.mjs" "$HUB_ROOT/orca-catalog.json" "$request"
 "$ORCA" plugin validate "$HUB_ROOT/orca-catalog.json" --json >/dev/null || die "the catalog does not validate: $ORCA plugin validate orca-catalog.json"
 
-git -C "$HUB_ROOT" add orca-catalog.json
+git -C "$HUB_ROOT" add -- orca-catalog.json
+if [[ -d "$HUB_ROOT/assets" || -n "$(git -C "$HUB_ROOT" ls-files -- assets)" ]]; then
+  git -C "$HUB_ROOT" add -A -- assets
+fi
 git -C "$HUB_ROOT" commit -q -m "chore(catalog): $catalog_id $tag"
 git -C "$HUB_ROOT" switch -q main
 git -C "$HUB_ROOT" merge -q --no-ff "release/$name-$version" -m "Release $name $tag"
