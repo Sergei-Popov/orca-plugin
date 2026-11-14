@@ -97,6 +97,9 @@ git -C "$HUB_ROOT" switch -q develop
 git -C "$HUB_ROOT" switch -q -c "feature/plugin-$name"
 if [[ $github -eq 1 ]]; then
   git -C "$HUB_ROOT" submodule add -q -b develop "https://github.com/$repo.git" "plugins/$name"
+  # Plugin development must not dirty the hub (gitflow skill): the hub pins release commits only.
+  git -C "$HUB_ROOT" config -f .gitmodules "submodule.plugins/$name.ignore" all
+  git -C "$HUB_ROOT" add .gitmodules
   git -C "$HUB_ROOT" commit -q -m "feat: add $name plugin ($repo) as a submodule"
   git -C "$HUB_ROOT" switch -q develop
   git -C "$HUB_ROOT" merge -q --no-ff "feature/plugin-$name" -m "Merge feature/plugin-$name into develop"

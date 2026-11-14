@@ -5,6 +5,8 @@ Plugins for [Orca](https://orca.dev), and the Orca catalog that lists them.
 | Plugin                                                                  | What it does                                                                                                  |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [Media Viewer](https://github.com/Sergei-Popov/orca-media-viewer)        | Video and audio in Orca's editor tabs: plays `.mkv`, adds a full player view to `.mp4`, `.mov`, `.mp3`, `.flac`… |
+| [Archive Viewer](https://github.com/Sergei-Popov/orca-archive-viewer)    | `.zip`, `.jar`, `.tar.gz` and other archives in Orca's editor tabs: a file tree, previews inside, saving single files. |
+| [Font Viewer](https://github.com/Sergei-Popov/orca-font-viewer)          | `.ttf`, `.otf`, `.woff`, `.woff2` fonts in Orca's editor tabs: sample text, every character, variable axes, details. |
 
 ## Install
 
