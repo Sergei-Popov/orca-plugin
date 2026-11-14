@@ -7,3 +7,7 @@
 	path = plugins/archive-viewer
 	url = https://github.com/Sergei-Popov/orca-archive-viewer.git
 	branch = develop
+[submodule "plugins/font-viewer"]
+	path = plugins/font-viewer
+	url = https://github.com/Sergei-Popov/orca-font-viewer.git
+	branch = develop
