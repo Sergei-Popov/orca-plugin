@@ -3,5 +3,79 @@
   "catalogVersion": 2,
   "name": "Sergei Popov's Orca plugins",
   "owner": "Sergei-Popov",
-  "plugins": []
+  "plugins": [
+    {
+      "id": "sergei-popov.media-viewer",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-media-viewer.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "531f2f00850c1736e732a5f498ee863625ca4ec8",
+          "contentHash": "20585bdf874df9778c98bff77d90c24577fa3fc437f521ccf1861385896c27d0",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Media Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mkv, .mka, .weba"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp4, .m4v, .mov, .webm, .mp3, .wav, .m4a, .aac, .ogg, .oga, .flac, .opus"
+            }
+          ],
+          "fileTypes": [
+            "mkv",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
+          "editorFileTypes": [
+            "mkv",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-media-viewer",
+          "changelog": "Added\n\n- Media Player for video and audio in Orca's editor tabs, opened from the file tree, chat file links or orca file open.\n- Opens .mkv, .mka and .weba by default (Orca has no viewer for them).\n- Offered in the tab's view toggle for .mp4, .m4v, .mov, .webm, .mp3, .wav, .m4a, .aac, .ogg, .oga, .flac and .opus, keeping Orca's built-in player as the default.\n- Controls: play/pause, seek, volume and mute, speed 0.25×–3×, repeat, frame stepping, fit / actual size, full screen.\n- Save the current frame as PNG through Orca's save dialog.\n- File info overlay: size, resolution, duration, measured frame rate, type.\n- Audio cover in place of a black frame.\n- Keyboard shortcuts, light and dark themes, English and Russian UI.",
+          "updatedAt": "2026-11-14"
+        }
+      ],
+      "description": "Video and audio in Orca's editor tabs: plays .mkv, .mka and .weba, which Orca cannot show, and adds a full player view to .mp4, .mov, .webm, .mp3, .flac and other media. Speed, frame stepping, repeat, frame snapshots, file info and keyboard shortcuts.",
+      "categories": [
+        "media",
+        "viewers"
+      ]
+    }
+  ]
 }
