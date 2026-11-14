@@ -1,0 +1,5 @@
+[submodule "plugins/media-viewer"]
+	path = plugins/media-viewer
+	url = https://github.com/Sergei-Popov/orca-media-viewer.git
+	branch = develop
+	ignore = all
