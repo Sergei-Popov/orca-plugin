@@ -13,22 +13,36 @@
       },
       "releases": [
         {
-          "version": "0.1.1",
-          "commit": "8a682ac8da8e4c48e269b0a1212b6f33e076dac3",
-          "contentHash": "4b75c9c6f33cd75d6fdc633145ad3e2d11ef0dbc99734b527c05b33d10fe90b8",
+          "version": "0.2.0",
+          "commit": "5d49dc7f62845326974d6120bc7347257f42df25",
+          "contentHash": "5b0c6f4884724de1da9fc764b2c392864149953f0188b589e35bdc660b0e12b1",
           "execution": "sandboxed-ui",
           "minimumOrca": "1.4.248",
           "name": "Media Viewer",
           "contributes": [
             {
-              "kind": "customEditors",
-              "name": "Media Player",
-              "detail": ".mkv, .mka, .weba"
+              "kind": "iconThemes",
+              "name": "Media Viewer"
             },
             {
               "kind": "customEditors",
               "name": "Media Player",
-              "detail": ".mp4, .m4v, .mov, .webm, .mp3, .wav, .m4a, .aac, .ogg, .oga, .flac, .opus"
+              "detail": ".mkv"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mka, .weba"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp4, .m4v, .mov, .webm"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp3, .wav, .m4a, .aac, .ogg, .oga, .flac, .opus"
             }
           ],
           "fileTypes": [
@@ -111,6 +125,64 @@
               }
             ]
           },
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-media-viewer",
+          "changelog": "Added\n\n- File icon theme \"Media Viewer\" (Settings → Appearance → Icon theme): video and audio files get their own icons in tabs, the file tree, Quick Open and search, even when Orca's built-in player opens them. It maps only media files; other files show Orca's built-in icons while it is selected.\n- Tabs opened in Media Player show a video or an audio icon instead of the plugin icon.\n\nChanged\n\n- Media Player is split into video and audio editors (media, media-audio, media-plus, media-plus-audio) so each gets its tab icon.",
+          "updatedAt": "2026-11-14"
+        },
+        {
+          "version": "0.1.1",
+          "commit": "8a682ac8da8e4c48e269b0a1212b6f33e076dac3",
+          "contentHash": "4b75c9c6f33cd75d6fdc633145ad3e2d11ef0dbc99734b527c05b33d10fe90b8",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Media Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mkv, .mka, .weba"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp4, .m4v, .mov, .webm, .mp3, .wav, .m4a, .aac, .ogg, .oga, .flac, .opus"
+            }
+          ],
+          "fileTypes": [
+            "mkv",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
+          "editorFileTypes": [
+            "mkv",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
           "license": "MIT",
           "repository": "https://github.com/Sergei-Popov/orca-media-viewer",
           "changelog": "Added\n\n- Icon, cover and screenshots for the plugin page in Orca and on orca.dev.\n\nChanged\n\n- File info shows \"— (measured during playback)\" for the frame rate until the clip has played, instead of a guessed \"≈ 30 (unknown)\".",
