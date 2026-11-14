@@ -5,6 +5,134 @@
   "owner": "Sergei-Popov",
   "plugins": [
     {
+      "id": "sergei-popov.archive-viewer",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-archive-viewer.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "2934a3146315772abf89cdb72e88260ff62e55b2",
+          "contentHash": "780da2044c6e72dccd969f73aab6c0996b559421a12d03a5e76896acff518694",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Archive Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Archive Viewer",
+              "detail": ".zip, .jar, .war, .ear, .aar, .apk, .whl, .nupkg, .vsix, .xpi, .ipa, .epub, .tar, .gz, .tgz, .bz2, .tbz2, .tbz, .xz, .txz, .zst, .tzst"
+            }
+          ],
+          "fileTypes": [
+            "zip",
+            "jar",
+            "war",
+            "ear",
+            "aar",
+            "apk",
+            "whl",
+            "nupkg",
+            "vsix",
+            "xpi",
+            "ipa",
+            "epub",
+            "tar",
+            "gz",
+            "tgz",
+            "bz2",
+            "tbz2",
+            "tbz",
+            "xz",
+            "txz",
+            "zst",
+            "tzst"
+          ],
+          "editorFileTypes": [
+            "zip",
+            "jar",
+            "war",
+            "ear",
+            "aar",
+            "apk",
+            "whl",
+            "nupkg",
+            "vsix",
+            "xpi",
+            "ipa",
+            "epub",
+            "tar",
+            "gz",
+            "tgz",
+            "bz2",
+            "tbz2",
+            "tbz",
+            "xz",
+            "txz",
+            "zst",
+            "tzst"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.archive-viewer/images/icon.png",
+              "alt": "Archive Viewer",
+              "sha256": "eb62f3b6fe7ce86c3c98e4055566e1a0ffd0bc5e3bb926cc758772183c3cddef",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.archive-viewer/images/cover.png",
+              "alt": "A ZIP in Archive Viewer: the file tree with sizes and dates on the left, its README with line numbers and details on the right.",
+              "sha256": "c990e644280a3b28db2ae586df1e58f4b8476ea98111a077662c51a5ca9e7113",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.archive-viewer/images/code-light.png",
+                "alt": "src/index.ts from a ZIP with Orca's light theme: the src folder open in the tree, the file with line numbers, compression method, CRC-32 and encoding.",
+                "sha256": "6e945542b69586c9a318ac472554be6b693956c21288e0bd7396c4ffa251b563",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.archive-viewer/images/image-dark.png",
+                "alt": "public/hero.png selected in the archive tree with Orca's dark theme, previewed on a checkerboard with its dimensions, 480 × 300.",
+                "sha256": "31a70a525c0b3b6fadacf86b737c0eedca769011c2356234a0241f863e5b2e19",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.archive-viewer/images/nested-dark.png",
+                "alt": "charts-1.8.2.jar opened from inside the ZIP, with the breadcrumb Archive › charts-1.8.2.jar; BarChart.class shows as hex starting with ca fe ba be.",
+                "sha256": "f0702352752132fc0e07055782f06f17e6c325c2604d7afc1292bef7a7611acb",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "path": "assets/sergei-popov.archive-viewer/images/filter-light.png",
+                "alt": "A .tar.gz filtered by \".ts\" with Orca's light theme: the matching files highlighted in their folders, forecast.ts previewed on the right.",
+                "sha256": "18e33c3ac07d40fd2a70c050184dee43f66ad9c0d44f0fda6f720f741092c8d7",
+                "width": 1440,
+                "height": 900
+              }
+            ]
+          },
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-archive-viewer",
+          "changelog": "Added\n\n- Archive Viewer editor for .zip, .jar, .war, .ear, .aar, .apk, .whl, .nupkg,\n  .vsix, .xpi, .ipa, .epub, .tar, .gz, .tgz, .bz2, .tbz2, .tbz, .xz,\n  .txz, .zst and .tzst; formats are recognised by their bytes, 7-Zip, RAR, lzip, .Z and\n  .cab get a clear \"not supported\" message.\n- ZIP: end record search with self-extracting prefixes, ZIP64, data descriptors, Unix modes and\n  symlinks, Info-ZIP Unicode paths and extended timestamps, NTFS times; stored, Deflate, bzip2\n  and Zstandard entries with a CRC-32 check; encrypted and other methods are named, not unpacked.\n- TAR: ustar, GNU long names and links, PAX headers, base-256 sizes, symbolic and hard links;\n  GZIP (several members), bzip2, XZ and Zstandard streams, with the tar inside or a single file\n  named from the GZIP header, each GZIP member checked against its CRC-32 and size. Unpacking\n  stops at 512 MB; archives inside archives open up to 8 levels deep and 1 GB together.\n- Clear messages for valid files beyond the decoders' limits: Zstandard windows over 128 MB, XZ\n  dictionaries over 64 MB, and XZ with a SHA-256 check or BCJ or delta filters. A damaged or\n  cut-off GZIP file shows what could be read with a notice.\n- Names without UTF-8 marking in CP437, CP866 (default for a Russian UI) or Windows-1251,\n  switchable in the toolbar.\n- Virtualized file tree with size, packed and date columns; filter (⌘F / Ctrl+F), expand\n  and collapse all, summary with the compression ratio, keyboard navigation.\n- Preview: text with line numbers and wrapping, images, hex dump, details (method, date,\n  permissions, CRC-32, link target); archives inside archives open in place with a trail back;\n  Save… through Orca's save dialog and Copy path. The README is selected on opening.\n- English and Russian UI, Orca's light and dark themes, plugin and tab icons.",
+          "updatedAt": "2026-11-14"
+        }
+      ],
+      "description": "Browse archives in Orca's editor tabs: .zip, .jar, .apk, .whl, .epub and other ZIP files, .tar, and .gz, .bz2, .xz or .zst (also .tar.gz and friends). A fast file tree with sizes and dates, a filter, previews of the text, images and hex inside, nested archives, legacy code page names and saving single files. Read-only, offline.",
+      "categories": [
+        "viewers",
+        "files"
+      ]
+    },
+    {
       "id": "sergei-popov.media-viewer",
       "source": {
         "kind": "git",
