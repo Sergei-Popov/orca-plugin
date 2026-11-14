@@ -3,3 +3,7 @@
 	url = https://github.com/Sergei-Popov/orca-media-viewer.git
 	branch = develop
 	ignore = all
+[submodule "plugins/archive-viewer"]
+	path = plugins/archive-viewer
+	url = https://github.com/Sergei-Popov/orca-archive-viewer.git
+	branch = develop
