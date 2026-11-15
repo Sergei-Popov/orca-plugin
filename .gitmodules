@@ -23,3 +23,8 @@
 	url = https://github.com/Sergei-Popov/orca-class-viewer.git
 	branch = develop
 	ignore = all
+[submodule "plugins/image-viewer"]
+	path = plugins/image-viewer
+	url = https://github.com/Sergei-Popov/orca-image-viewer.git
+	branch = develop
+	ignore = all
