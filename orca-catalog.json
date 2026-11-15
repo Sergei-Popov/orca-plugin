@@ -133,6 +133,114 @@
       ]
     },
     {
+      "id": "sergei-popov.class-viewer",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-class-viewer.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "a414d4c1fc300555fce178cba953ca71759e113c",
+          "contentHash": "41144c4c7644b5342389bfaf8b703bd036eed8fdd907ac6e0639bc2472f77239",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Class File Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Class File Viewer",
+              "detail": ".class, .jmod"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Class File Viewer",
+              "detail": ".jar, .war, .ear, .aar"
+            }
+          ],
+          "fileTypes": [
+            "class",
+            "jmod",
+            "jar",
+            "war",
+            "ear",
+            "aar"
+          ],
+          "editorFileTypes": [
+            "class",
+            "jmod",
+            "jar",
+            "war",
+            "ear",
+            "aar"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.class-viewer/images/icon.png",
+              "alt": "Class File Viewer",
+              "sha256": "cb147192f2ddc014af8e41ed3da53eb75de01c9d0bf490dfeba64693838d3815",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.class-viewer/images/cover.png",
+              "alt": "Class File Viewer on a jar: the package tree with Telescope selected, and its declarations in Java syntax with a Java 21 badge.",
+              "sha256": "322bdd8cfe640d39d8ea3568f7fb0b08026c33a760f1b1649949d54401c19b43",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.class-viewer/images/shot-1-bytecode.png",
+                "alt": "The Bytecode tab on Telescope.point(): stack=4, locals=4, args_size=2, and each constant explained in a comment.",
+                "sha256": "ed01257f00bcc0fa80e120f98f3d586fae006fe1034dd03cb72f294e2f467456",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.class-viewer/images/shot-2-overview.png",
+                "alt": "A jar's overview: 84 classes, 9 packages, 1 resource; 83 compiled for Java 21, 1 for Java 8; its module and main class.",
+                "sha256": "c34e51169af5eacbc9c7a61fc78a4a795550ae4a3116092aebe72d67841d985b",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.class-viewer/images/shot-3-constant-pool.png",
+                "alt": "The Constant pool tab, 4 Methodrefs: #67 Optics.limitingMagnitude refers to #68 and #69 and is used in observe at offset 12.",
+                "sha256": "d1d16cf86a8c91d96b1be822256c2954e1b783275eb45ec511b3c11a5d9c417b",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.class-viewer/images/shot-4-structure.png",
+                "alt": "The Structure tab: Telescope's class header (6,880 bytes, CA FE BA BE, version 65.0) and the table of its 8 fields.",
+                "sha256": "5402c426a7574c482d5596743a4f4d22270f1fe7de5f86e694f6a081727250db",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.class-viewer/images/shot-5-multi-release.png",
+                "alt": "Units in a multi-release jar, switched from Base to Java 17+: its Java 17 copy, outlined. Shown in Orca's light theme.",
+                "sha256": "795e2ef77aaac7d66ce2d62ce2b1e610eee6e09402746396aa6a0440cb4ceb9e",
+                "width": 1600,
+                "height": 1000
+              }
+            ]
+          },
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-class-viewer",
+          "changelog": "Added\n\n- .class files open in Class File Viewer by default, with four tabs: **Outline** (the\n  declarations in Java syntax, with links to each method's bytecode and, in a jar, to the\n  classes it names), **Bytecode** (listed like javap -c -v), **Structure** (the class file's\n  header, members and attributes, each with its offset, length and bytes) and **Constant pool**\n  (filterable, cross-linked, with what uses each entry).\n- A **Java N** badge for the release a class was compiled for, and badges for classes compiled\n  by Kotlin (with its @Metadata version in Structure), Scala, Groovy or Clojure.\n- .jmod files open by default, and .jar, .war, .ear and .aar files as an option, in a\n  browser of packages and classes: nested classes under their outer class, class roots of web\n  and Spring Boot archives, multi-release versions, archives inside opened in place, previews\n  of resources and an overview with the Java versions of the classes, the module (a .jmod's\n  too) and the manifest. Entries are taken as the JVM takes them: the central directory\n  java.util.zip reads, by stored name, the last copy winning, and the manifest and version\n  folders as Java 21 finds them. Unusual names, shadowed copies and entries named like folders\n  that hold data are listed apart, with a notice; so is an archive with a second directory.\n- Clear messages for newer, damaged, cut-off and misnamed files and for damaged attributes;\n  obfuscated names shown with escapes. Code longer than the JVM allows is shown as damaged, and\n  the Bytecode tab lists up to a million instructions and table rows, with a notice past that.\n- Find, Copy and Save…; keyboard navigation of the tree.\n- English and Russian, following Orca's language; Orca's light and dark themes.",
+          "updatedAt": "2026-11-15"
+        }
+      ],
+      "description": "Read compiled .class files in Orca's editor tabs: declarations in Java syntax, bytecode listed like javap, the file's structure and a linked constant pool. Jars, wars, ears, aars and jmods open as a tree of packages and classes. Offline, no JDK needed. Independent; not affiliated with Oracle.",
+      "categories": [
+        "viewers",
+        "developer"
+      ]
+    },
+    {
       "id": "sergei-popov.font-viewer",
       "source": {
         "kind": "git",
