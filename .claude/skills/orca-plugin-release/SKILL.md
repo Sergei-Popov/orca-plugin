@@ -74,33 +74,44 @@ approved within about a day. Past that, release a patch that removes the likely 
 
 ## Listing images
 
-An `icon` (square PNG ≥128×128, ≤256 KB), a `cover` (`images/cover.png`, 16:10, take it at
-1600×1000, ≤1 MB) and up to 6 `screenshots` (1440×900, ≤1.5 MB, `theme: light|dark`, a `caption`)
-in the manifest make the listing better. Every `alt` is at most 160 characters (`orca plugin
-validate` enforces it). Use generated demo content (silent clips for media, OFL fonts), never the
-user's files.
+Build them with the hub's tool, never with screenshots of Orca's window:
 
-Take them with `orca plugin shot <key> --editor <file> --width 1440 --height 900 --out <png>`: it
-captures only the plugin, never the user's sidebar or files. The UI follows Orca's language. Check
-that a shot is in English. If it is not, ask the user to switch Settings → Appearance → Language
-rather than changing it yourself.
+```sh
+scripts/listing-image.sh <name> --dry-run --check --sheet   # PNGs to .orca/listing/out/, sheet.png
+scripts/listing-image.sh <name> --check --write-manifest    # images/*.png + orca-plugin.json
+```
 
-- **Without `--act` and `--theme`** a shot works with the window on screen, in Orca's current
-  theme. Take those (e.g. the cover in the dark theme) first.
-- **`--act` and `--theme` need Orca's window hidden or minimized.** A full-screen window counts as
-  on screen, and `set visible of process "Orca" to false` does nothing to it. Use
-  `scripts/orca-window.sh hide` (leaves full screen, minimizes, remembers it) and
-  `scripts/orca-window.sh show` (un-minimizes, back to full screen) — always `show` afterwards,
-  also when a shot fails.
-- The chat with the user usually runs inside Orca, so hiding the window hides the chat. Say so in
-  the chat, prepare every act first, hide once for a short batch (under a minute), then show. If
-  `--act` suddenly fails with "needs Orca's window hidden", the user has opened the window: don't
-  hide it again without saying so.
-- In zsh `${x:+--act "$x"}` stays one word and the CLI rejects it as an unknown flag. Build the
-  arguments in a bash array.
-- Editor acts are clicks and keys in the editor's CSS pixels, each waiting one paint. After an act
-  that loads something asynchronously (opening a nested file), add a few clicks on an inert spot as
-  waits. A click on an empty part of a details pane also drops a list's focus ring before the
-  capture.
-- Keys that change saved preferences (speed, repeat) persist between shots, and their badges fade
-  only after ~0.7 s while acts run in milliseconds — avoid them or reset them in a throwaway shot.
+House style, the `tools/listing.json` schema, the acts and the checks are in
+`scripts/lib/listing/README.md`.
+
+**What the tool does**
+- It renders the plugin's real editor on a local stage in headless Google Chrome, with audio muted.
+- The stage reproduces Orca 1.4.258's guest frame: its default tokens, its CSP and `window.orca`.
+- It composes the house style:
+  - a 1600×1000 dark cover with the title, tagline and chips;
+  - 4–5 slides of 1600×1000 with a headline;
+  - at most one light slide, and it comes last.
+- It checks sizes, alpha, bytes (≤ 400 KB each, ≤ 1.6 MB in total), alts, headlines, icons, stage
+  errors, and access to unknown `orca.*` members or events. Nothing on the stage reaches past
+  127.0.0.1: other origins, navigation and popups fail the build.
+- A failed image never replaces the one in `images/`, and `--write-manifest` writes only when every
+  listed image exists and is valid.
+
+**Workflow**
+1. Make the demo files in the plugin's `.orca/listing/samples/`, with the generator in its
+   `tools/` or from its committed test files. Never use the user's files. Use only fictional
+   names, silent media and OFL fonts.
+2. Write the spec, then run the `--dry-run` command above.
+3. Open every PNG in `.orca/listing/out/` and `sheet.png` with the Read tool. Fix the acts and
+   `origin`. Copy the values the capture shows into the alts. Repeat until `check: passed`.
+4. Run the `--check --write-manifest` command above. The manifest gets `{path, alt}` only, with no
+   `caption` or `theme`. Then run `orca plugin validate . --json`.
+5. Delete the obsolete images the run lists, unless the README uses them.
+
+**Rules**
+- Alts must be 1–140 characters; aim for 125 or fewer. `orca plugin validate` refuses anything
+  over 160.
+- `orca plugin shot` remains only for `scripts/listing-image.sh <name> --parity <file>`. That
+  compares the stage with Orca's own render once per plugin. It opens a tab in Orca, so it needs
+  the user's OK every time.
+- Do not hide Orca's window or change Orca's language for listing images.

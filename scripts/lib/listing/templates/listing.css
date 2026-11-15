@@ -1,0 +1,60 @@
+/* House style of the hub's listing images (scripts/lib/listing/README.md, "House style").
+   1600x1000 at device scale 1. The import below is the pinned @fontsource-variable/inter (opsz + wght). */
+@import url("{{fontCss}}");
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg: color-mix(in srgb, var(--accent) 7%, #0a0b0e); }
+html, body {
+  width: 1600px; height: 1000px; overflow: hidden; background: var(--bg); color: #f5f5f7;
+  font-family: 'Inter Variable', sans-serif; font-optical-sizing: auto; -webkit-font-smoothing: antialiased;
+}
+
+/* Backdrop: tinted near-black, two accent glows, a 28 px dot grid. */
+.backdrop {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(1000px 760px at 80% 18%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 70%),
+    radial-gradient(700px 600px at 6% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, .045) 1px, transparent 1.5px) 0 0 / 28px 28px,
+    var(--bg);
+}
+
+/* The panel holds only the plugin's real UI, at its natural pixel size (never resampled). The
+   border is drawn over the UI so the image stays on whole pixels; the bleed keeps the right/bottom
+   edges that leave the canvas off it. */
+.panel { position: absolute; overflow: hidden; box-shadow: 0 40px 120px rgba(0, 0, 0, .65); }
+.panel::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  border: 1.5px solid rgba(255, 255, 255, .14);
+}
+.panel img { position: absolute; left: 0; top: 0; display: block; image-rendering: pixelated; }
+
+/* Cover: left column x 104-704 from y 240; the panel at (720, 120), 880x880 visible. */
+.cover .left { position: absolute; left: 104px; top: 240px; width: 600px; }
+.cover .icon {
+  display: block; width: 112px; height: 112px; border-radius: 26px; margin-bottom: 40px;
+  box-shadow: 0 0 80px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.cover h1 {
+  display: flex; flex-direction: column; align-items: flex-start;
+  font-size: 112px; font-weight: 760; line-height: .98; letter-spacing: -0.035em;
+}
+.cover h1 span { white-space: nowrap; }
+.cover h1 .second { color: color-mix(in srgb, var(--accent) 35%, #8e8e96); font-weight: 640; }
+.cover .tagline {
+  margin-top: 34px; font-size: 38px; line-height: 1.28; font-weight: 420; letter-spacing: -0.01em;
+  color: rgba(245, 245, 247, .78);
+}
+.cover .chips { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 14px; }
+.cover .chip {
+  font-size: 27px; font-weight: 560; padding: 9px 20px; border-radius: 999px; white-space: nowrap;
+  border: 1.5px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .04); color: rgba(245, 245, 247, .86);
+}
+.cover .chip.main { background: var(--accent); border-color: transparent; color: #08090a; }
+.cover .panel { left: 720px; top: 120px; width: 944px; height: 944px; border-radius: 22px; }
+
+/* Slide: the headline row, then the panel at (80, 196), 1440x804, flush with the bottom edge. */
+.shot .head { position: absolute; left: 96px; top: 64px; right: 96px; height: 92px; display: flex; align-items: center; gap: 28px; }
+.shot .mini { width: 72px; height: 72px; border-radius: 17px; flex: none; }
+.shot h2 { font-size: 60px; font-weight: 700; letter-spacing: -0.025em; white-space: nowrap; }
+.shot .panel { left: 80px; top: 196px; width: 1440px; height: 844px; border-radius: 20px 20px 0 0; }
