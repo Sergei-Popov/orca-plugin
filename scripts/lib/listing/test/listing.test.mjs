@@ -217,3 +217,30 @@ describe('stage', { skip }, () => {
     assert.deepEqual((await capture('session')).unknown, ['orca.document.session'])
   })
 })
+
+describe('budget exception', () => {
+  test('a documented spec budget raises the per-image limit, within the caps', async () => {
+    const { budgetOf, budgetProblems, listedImageProblems, BUDGET_CAPS } = await import('../check.mjs')
+    // A 1600x1000 RGB image whose noise block makes it a little over 400 KB, built in code.
+    const side = 380
+    const noise = Buffer.alloc(side * side * 3)
+    let x = 2463534242
+    for (let i = 0; i < noise.length; i++) { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; noise[i] = x & 255 }
+    const file = path.join(tmp, 'heavy.png')
+    await sharp({ create: { width: 1600, height: 1000, channels: 3, background: '#101010' } })
+      .composite([{ input: noise, raw: { width: side, height: side, channels: 3 }, left: 600, top: 300 }])
+      .removeAlpha().png({ compressionLevel: 9 }).toFile(file)
+    const kb = fs.statSync(file).size / 1024
+    assert.ok(kb > 400 && kb < BUDGET_CAPS.imageKB, `precondition: ${kb.toFixed(0)} KB`)
+    const spec = { cover: { out: 'heavy.png' }, screenshots: [] }
+    const fileFor = () => file
+    assert.deepEqual(listedImageProblems({ spec, fileFor }), [`heavy.png (cover): ${kb.toFixed(0)} KB is over the 400 KB budget`])
+    const withBudget = { ...spec, budget: { imageKB: BUDGET_CAPS.imageKB, totalKB: 2300, reason: 'photo content cannot be lossless within 400 KB' } }
+    assert.deepEqual(budgetProblems(withBudget), [])
+    assert.deepEqual(listedImageProblems({ spec: withBudget, fileFor }), [])
+    assert.equal(budgetOf(withBudget).totalBytes, 2300 * 1024)
+    // Out-of-range values, a missing reason and unknown fields are refused.
+    assert.equal(budgetProblems({ budget: { imageKB: 900, totalKB: 9000, reason: 'x', extra: 1 } }).length, 4)
+    assert.deepEqual(budgetOf({}).imageBytes, 400 * 1024)
+  })
+})
