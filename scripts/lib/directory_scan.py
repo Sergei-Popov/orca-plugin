@@ -49,6 +49,10 @@ NETWORK = re.compile(r'\b(fetch\s*\(|XMLHttpRequest|WebSocket\s*\(|EventSource\s
 DYNAMIC_CODE = re.compile(r'(?<![\w$.])(eval\s*\(|new\s+Function\s*\(|Function\s*\(\s*["\'`])')
 ESCAPE_RUN = re.compile(r'(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|\\u\{[0-9a-fA-F]+\}){16,}')
 B64_RUN = re.compile(rb'(data:[\w/+.-]+;base64,)?([A-Za-z0-9+/]{1000,}={0,2})')
+# Process spawning, raw sockets and reads of credential files look like exfiltration to a reviewer,
+# even in a test: the whole tagged tree is the plugin, tests included.
+SPAWN = re.compile(r'(node:child_process|[\'"]child_process[\'"]|\bexecFile(?:Sync)?\s*\(|\bspawn(?:Sync)?\s*\(|\bexecSync\s*\(|/bin/(?:ba|z)?sh[\'"]?\s*(?:,\s*\[\s*[\'"])?-c\b'
+                   r'|node:net\b|node:http\b|node:https\b|node:dgram\b|createServer\s*\(|(?<![\w$)\]])\.env(?![\w$(])|id_rsa|\.ssh/|\.aws/credentials)')
 SUSPICIOUS_NAMES = re.compile(r'(hostile|attacker|exploit|malicious|payload|evil)', re.I)
 
 
@@ -183,6 +187,10 @@ def main():
             for m in DYNAMIC_CODE.finditer(stripped):
                 errors.append(f'{rel}: {m.group(1).strip()} … (eval / new Function are forbidden in frames and draw review)')
                 break
+            spawn = sorted({m.group(1) for m in SPAWN.finditer(stripped)})
+            if spawn:
+                warnings.append(f'{rel}: {", ".join(spawn[:4])} — process spawning, servers or credential-file names read as '
+                                'exfiltration to the directory\'s review, even in tests; keep such harnesses out of the tree')
             is_test = re.search(r'(\.test\.|/test/|/tests/|^tools/)', rel) is not None
             if not is_test:
                 for m in NETWORK.finditer(stripped):
