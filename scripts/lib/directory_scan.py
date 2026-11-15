@@ -43,7 +43,7 @@ SCRIPT_EXT = ('.sh', '.py', '.mjs', '.js')
 BRANDS = ['openapi', 'swagger', 'asyncapi', 'java', 'kotlin', 'oracle', 'photoshop', 'adobe', 'apple', 'google',
           'chrome', 'chromium', 'playwright', 'docker', 'github', 'microsoft', 'jetbrains', 'figma', 'notion',
           'slack', 'claude', 'anthropic', 'openai', 'codex', 'cursor', 'official', 'verified']
-PRICING = re.compile(r'(\$\s?\d|\bprices?\b|\bpricing\b|\bcredits?\b|\bsubscriptions?\b|\bfree trial\b|\btrial\b'
+PRICING = re.compile(r'((?<![\w$"\'`\\])\$\s?\d+(?:[.,]\d{1,2})?(?![\w$])|\bprices?\b|\bpricing\b|\bcredits?\b|\bsubscriptions?\b|\bfree trial\b|\btrial\b'
                      r'|\blicen[cs]e key\b|\bpremium\b|\bpaywall\b|\bPro\b(?! ?(?:file|ject|cess|vide|perty|duce|mise|blem|to|xy|gram|of)))')
 NETWORK = re.compile(r'\b(fetch\s*\(|XMLHttpRequest|WebSocket\s*\(|EventSource\s*\(|navigator\.sendBeacon)')
 DYNAMIC_CODE = re.compile(r'(?<![\w$.])(eval\s*\(|new\s+Function\s*\(|Function\s*\(\s*["\'`])')
@@ -54,6 +54,24 @@ SUSPICIOUS_NAMES = re.compile(r'(hostile|attacker|exploit|malicious|payload|evil
 
 def git(*args, text=True):
     return subprocess.run(['git', *args], capture_output=True, text=text, check=True).stdout
+
+
+def in_string_literal(text, pos):
+    """Rough check that pos sits inside a '…', "…" or `…` literal on its line (escapes honoured)."""
+    start = text.rfind('\n', 0, pos) + 1
+    quote = None
+    i = start
+    while i < pos:
+        c = text[i]
+        if c == '\\':
+            i += 2
+            continue
+        if quote is None and c in '\'"`':
+            quote = c
+        elif c == quote:
+            quote = None
+        i += 1
+    return quote is not None
 
 
 def magic_of(b, table):
@@ -168,9 +186,15 @@ def main():
             is_test = re.search(r'(\.test\.|/test/|/tests/|^tools/)', rel) is not None
             if not is_test:
                 for m in NETWORK.finditer(stripped):
+                    if in_string_literal(stripped, m.start()):
+                        continue  # e.g. the text of a generated code sample
                     warnings.append(f'{rel}: {m.group(1).strip()} — network use draws review; frames have no network')
                     break
-        if low.endswith(('.md', '.json')) or low.endswith(CODE_EXT):
+        # Pricing words matter in what people read: docs, the manifest and UI strings. Vendored code
+        # is not ours to reword, and other code is full of `$1` regex replacements.
+        user_text = low.endswith('.md') or rel == 'orca-plugin.json' or (
+            low.endswith(CODE_EXT) and re.search(r'(i18n|locale|strings|messages)', low) is not None)
+        if user_text and not low.startswith('vendor/'):
             for m in PRICING.finditer(text):
                 ctx = text[max(0, m.start() - 30):m.end() + 30].replace('\n', ' ')
                 warnings.append(f'{rel}: pricing-like wording "{m.group().strip()}" in “…{ctx}…”')
