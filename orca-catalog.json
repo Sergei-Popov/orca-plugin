@@ -428,6 +428,168 @@
       ]
     },
     {
+      "id": "sergei-popov.image-viewer",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-image-viewer.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "d8de41bef0f0fb27f215390790d315351528def0",
+          "contentHash": "8bb4b0f8315b3679ff3d40cac43b9ac6993d40d541a9f56b8d95e5c6bca626b4",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Image Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Image Viewer",
+              "detail": ".tif, .tiff, .heic, .heif, .hif, .psd, .psb, .exr, .hdr, .pic, .tga, .dds, .qoi, .icns"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Image Viewer",
+              "detail": ".dng, .cr2, .cr3, .nef, .nrw, .arw, .srf, .raf, .rw2, .orf, .pef, .srw, .sr2, .ori, .rwl, .iiq, .erf, .kdc, .mos"
+            }
+          ],
+          "fileTypes": [
+            "tif",
+            "tiff",
+            "heic",
+            "heif",
+            "hif",
+            "psd",
+            "psb",
+            "exr",
+            "hdr",
+            "pic",
+            "tga",
+            "dds",
+            "qoi",
+            "icns",
+            "dng",
+            "cr2",
+            "cr3",
+            "nef",
+            "nrw",
+            "arw",
+            "srf",
+            "raf",
+            "rw2",
+            "orf",
+            "pef",
+            "srw",
+            "sr2",
+            "ori",
+            "rwl",
+            "iiq",
+            "erf",
+            "kdc",
+            "mos"
+          ],
+          "editorFileTypes": [
+            "tif",
+            "tiff",
+            "heic",
+            "heif",
+            "hif",
+            "psd",
+            "psb",
+            "exr",
+            "hdr",
+            "pic",
+            "tga",
+            "dds",
+            "qoi",
+            "icns",
+            "dng",
+            "cr2",
+            "cr3",
+            "nef",
+            "nrw",
+            "arw",
+            "srf",
+            "raf",
+            "rw2",
+            "orf",
+            "pef",
+            "srw",
+            "sr2",
+            "ori",
+            "rwl",
+            "iiq",
+            "erf",
+            "kdc",
+            "mos"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.image-viewer/images/icon.png",
+              "alt": "Image Viewer",
+              "sha256": "283611c9d24aa1c7b51f213feaaa86737853cf13629373ac1dee88e8dceaafb2",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.image-viewer/images/cover.png",
+              "alt": "Image Viewer on an OpenEXR render: the Part picker, +0.5 EV exposure and Filmic tone mapping in the toolbar above the image.",
+              "sha256": "7d5a938ccda3d187b6cfaea86a63dc00c8d801d05b76f4bd92f7d893190dfe1e",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.image-viewer/images/shot-1-psd-layers.png",
+                "alt": "The Layers tab lists layers and groups with blend mode, opacity and size; the Badge smart object is shown alone at 100%.",
+                "sha256": "bbf17027918bdb222b3cc4d77f2d1a2b98471b08d76843d47a2a6e6d3a9fb5be",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.image-viewer/images/shot-2-hdr-exposure.png",
+                "alt": "A Radiance HDR render at −2.0 EV, Filmic: the lamp keeps its shape, and the pixel readout shows its stored R 16.0625.",
+                "sha256": "a07dcdb22d91296bfca1b8d5a5f28d244c378a9199c5ddfe43342613716947d5",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.image-viewer/images/shot-3-raw-exif.png",
+                "alt": "A DNG's embedded preview beside its camera and location details: 1/250 s, f/8, ISO 100, 35 mm, 40° 45′ 36″ N, 113° 53′ 24″ W.",
+                "sha256": "da8c9c91c7b9a4e8c0a6a4178b7a259de61377e8c63f2984e7a39bb4f5822927",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.image-viewer/images/shot-4-dds-cube.png",
+                "alt": "A DDS cube map in 16-bit float: the Face and Mip pickers in the toolbar, and a Faces list of all six faces with −Z shown.",
+                "sha256": "b03f750c32488b16ed008e7b66589b5f776e0f2edd850b1e8cd05bbea0086026",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.image-viewer/images/shot-5-heic.png",
+                "alt": "A HEIC photo with its details: a 4 × 2 grid of 512 × 512 tiles, codec hvc1.3.E.L90.B0, 8-bit. Shown in Orca's light theme.",
+                "sha256": "bf62c9da6d419f2f1e8f15cf1887f28625fc3ef155bb923824ba23ae8e2f6727",
+                "width": 1600,
+                "height": 1000
+              }
+            ]
+          },
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-image-viewer",
+          "changelog": "Added\n\n- Image Viewer, the default editor for .tif, .tiff, .psd, .psb, .exr, .hdr, .pic,\n  .tga, .dds, .qoi, .icns, .heic, .heif and .hif, and for the camera RAW files\n  .dng, .cr2, .cr3, .nef, .nrw, .arw, .srf, .sr2, .raf, .rw2, .rwl, .orf,\n  .ori, .pef, .srw, .iiq, .mos, .erf and .kdc.\n- TIFF: pages and reduced-resolution sub-images, strips and tiles, chunky and planar, 1–32-bit\n  integers and 16–64-bit floats, LZW, Deflate, PackBits, JPEG and WebP, predictors, RGB, grey,\n  palette, CMYK, YCbCr and CIELAB, BigTIFF.\n- PSD and PSB: the saved composite, each layer, groups, layer visibility and a composite of the\n  visible layers (blend modes, opacity, clipping, masks); layers composited with a notice when the\n  file has no composite.\n- OpenEXR: scanline and tiled, multi-part, layers, MIP and RIP levels, half/float/uint channels,\n  NONE, RLE, ZIPS, ZIP, PIZ, PXR24, B44 and B44A.\n- Radiance HDR, TGA (with the 2.0 extension), QOI, and ICNS with every icon size (JPEG 2000\n  entries listed as not supported).\n- DDS: uncompressed formats, BC1–BC7 including BC6H, MIP levels, cube faces, array layers and\n  volume slices.\n- HEIC and HEIF: own container reader with grids, rotation, mirroring, cropping, alpha, depth and\n  matte images, thumbnails; HEVC and AV1 decoded by the system through WebCodecs, and a plain\n  explanation with the file's details where the system has no HEVC decoder.\n- Camera RAW: the largest embedded preview and the smaller ones, EXIF, sensor details and maker\n  notes for eight makers, the camera name from XMP when the TIFF tags lack it; no RAW development,\n  said in a notice.\n- Zoom and pan, Fit and 1:1, checkerboard and pixel grid, pixel values under the pointer, image\n  pickers in the toolbar, a side-pane list with thumbnails (TIFF pages, PSD layers, EXR parts,\n  DDS faces and array layers, ICNS sizes, RAW previews), channel views, histogram, levels and Auto\n  contrast for every image, exposure and tone curves for HDR, keyboard shortcuts.\n- Details pane: ",
+          "updatedAt": "2026-11-15"
+        }
+      ],
+      "description": "Image formats Orca can't show, in its editor tabs: TIFF, HEIC and HEIF, PSD and PSB, EXR, HDR, TGA, DDS, QOI, ICNS, and the embedded previews of camera RAW files. Zoom to the pixel, pages, layers and mip levels, HDR exposure, channels, EXIF, XMP and GPS details, Save as PNG. Read-only, offline.",
+      "categories": [
+        "viewers",
+        "design"
+      ]
+    },
+    {
       "id": "sergei-popov.media-viewer",
       "source": {
         "kind": "git",
