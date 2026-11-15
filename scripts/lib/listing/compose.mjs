@@ -18,7 +18,7 @@ import { parseArgs } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import { createStage, launchChrome } from './stage.mjs'
-import { checkListing, listedImageProblems, planManifest, writeParity, writeSheet } from './check.mjs'
+import { budgetOf, budgetProblems, checkListing, listedImageProblems, planManifest, writeParity, writeSheet } from './check.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const W = 1600
@@ -28,7 +28,6 @@ const COVER = { x: 720, y: 120, w: 880, h: 880, minScale: 1.6, scale: 2 }
 const SLIDE = { x: 80, y: 196, w: 1440, h: 804, scale: 1.5, width: 960, height: 536 }
 /** --plain: a bare capture; 1067x667 CSS at 1.5 covers 1600x1000, cropped to exactly that. */
 const PLAIN = { width: 1067, height: 667, scale: 1.5 }
-export const MAX_BYTES = 400 * 1024
 
 const log = (...a) => console.error(...a)
 const fail = (msg) => {
@@ -251,8 +250,9 @@ async function buildOne(t, r) {
   r.bytes = png.length
   r.rawBytes = fs.statSync(composed).size
   if (r.width !== W || r.height !== H) r.errors.push(`${r.width}x${r.height}, not ${W}x${H}`)
-  if (r.bytes > MAX_BYTES) {
-    r.errors.push(`${(r.bytes / 1024).toFixed(0)} KB is over the 400 KB budget: choose a calmer UI state or crop` +
+  const maxBytes = budgetOf(spec).imageBytes
+  if (r.bytes > maxBytes) {
+    r.errors.push(`${(r.bytes / 1024).toFixed(0)} KB is over the ${maxBytes / 1024} KB budget: choose a calmer UI state or crop` +
       (args.palette ? '' : ' (--palette only after looking at the glow crop on the sheet)'))
   }
   // Only a clean build replaces the image in the plugin; a failed one stays in the work folder.
@@ -398,6 +398,7 @@ function validateSpec(s) {
   if (!s.cover || typeof s.cover !== 'object') e.push('cover is missing')
   if (!Array.isArray(s.screenshots)) e.push('screenshots must be an array (may be empty)')
   const entries = [['cover', s.cover], ...(s.screenshots ?? []).map((x, i) => [`screenshots[${i}]`, x])]
+  e.push(...budgetProblems(s))
   for (const [name, x] of entries) {
     if (!x) continue
     if (!str(x.out) || !/\.png$/.test(x.out)) e.push(`${name}.out must be a .png path`)

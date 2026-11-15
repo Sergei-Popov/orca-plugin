@@ -16,6 +16,29 @@ export const LIMITS = {
   iconSide: 256, iconBytes: 256 * KB, iconTarget: 60 * KB, editorIconTarget: 30 * KB, iconEdge: 8,
   alt: 140, headline: 40, headlineWords: 7, tagline: 60, chips: 5, chip: 16,
 }
+/**
+ * A plugin may document an exception to the house image budget in its spec, e.g. photo content
+ * that cannot be lossless within 400 KB: `"budget": {"imageKB": 480, "totalKB": 2300, "reason": "…"}`.
+ * The exception is capped well below Orca's limits and orca.dev's size hold (a plugin over ~5 MiB).
+ */
+export const BUDGET_CAPS = { imageKB: 512, totalKB: 2560 }
+export function budgetOf(spec) {
+  const b = spec?.budget
+  if (!b) return { imageBytes: LIMITS.imageBytes, totalBytes: LIMITS.totalBytes, reason: null }
+  return { imageBytes: b.imageKB * KB, totalBytes: b.totalKB * KB, reason: b.reason }
+}
+export function budgetProblems(spec) {
+  const b = spec?.budget
+  if (b === undefined) return []
+  const e = []
+  if (!b || typeof b !== 'object') return ['budget must be {imageKB, totalKB, reason}']
+  const houseImage = LIMITS.imageBytes / KB, houseTotal = LIMITS.totalBytes / KB
+  if (!Number.isInteger(b.imageKB) || b.imageKB < houseImage || b.imageKB > BUDGET_CAPS.imageKB) e.push(`budget.imageKB must be an integer from ${houseImage} to ${BUDGET_CAPS.imageKB}`)
+  if (!Number.isInteger(b.totalKB) || b.totalKB < houseTotal || b.totalKB > BUDGET_CAPS.totalKB) e.push(`budget.totalKB must be an integer from ${Math.round(houseTotal)} to ${BUDGET_CAPS.totalKB}`)
+  if (typeof b.reason !== 'string' || b.reason.trim().length < 20) e.push('budget.reason must say why the house budget does not fit (at least 20 characters)')
+  for (const k of Object.keys(b)) if (!['imageKB', 'totalKB', 'reason'].includes(k)) e.push(`budget.${k} is not a budget field`)
+  return e
+}
 export const LIGHT_SENTENCE = "Shown in Orca's light theme."
 // Overlay text and alts: no superlatives, trust badges, pricing, ratings or install counts.
 const BANNED = [
@@ -52,7 +75,7 @@ export function pngInfo(buf) {
   return info
 }
 
-function checkListingImage(file, kind, { palette }, errors, warnings) {
+function checkListingImage(file, kind, { palette, imageBytes = LIMITS.imageBytes }, errors, warnings) {
   const name = path.basename(file)
   if (!fs.existsSync(file)) return errors.push(`${name}: missing`)
   const buf = fs.readFileSync(file)
@@ -68,7 +91,7 @@ function checkListingImage(file, kind, { palette }, errors, warnings) {
   if (p.animated) errors.push(`${name}: animated (acTL); Orca refuses it`)
   if (p.metadata.length) warnings.push(`${name}: metadata chunks ${p.metadata.join(', ')}`)
   if (buf.length > rule.maxBytes) errors.push(`${name}: ${(buf.length / KB).toFixed(0)} KB is over Orca's ${rule.maxBytes / KB} KB`)
-  else if (buf.length > LIMITS.imageBytes) errors.push(`${name}: ${(buf.length / KB).toFixed(0)} KB is over the 400 KB budget`)
+  else if (buf.length > imageBytes) errors.push(`${name}: ${(buf.length / KB).toFixed(0)} KB is over the ${imageBytes / KB} KB budget`)
   return buf.length
 }
 
@@ -168,12 +191,15 @@ export async function checkListing({ pluginDir, spec, manifest, results, outPath
   }
 
   // Listing images.
+  const budget = budgetOf(spec)
+  for (const p of budgetProblems(spec)) errors.push(p)
+  if (budget.reason) warnings.push(`budget exception: images up to ${budget.imageBytes / KB} KB, ${budget.totalBytes / KB} KB in total (house: 400 KB, 1638 KB). Reason: ${budget.reason}`)
   let total = 0
   const entries = [['cover', spec.cover], ...(spec.screenshots ?? []).map((s, i) => [`shot-${i + 1}`, s])]
   for (const [id, entry] of entries) {
     let file = outPathFor(entry)
     if (!fs.existsSync(file) && dryRun) file = fromPlugin(entry.out)
-    const bytes = checkListingImage(file, id === 'cover' ? 'cover' : 'screenshot', { palette }, errors, warnings)
+    const bytes = checkListingImage(file, id === 'cover' ? 'cover' : 'screenshot', { palette, imageBytes: budget.imageBytes }, errors, warnings)
     if (typeof bytes === 'number') {
       total += bytes
       facts.push(`${id.padEnd(7)} ${path.basename(file).padEnd(34)} ${(bytes / KB).toFixed(0).padStart(4)} KB  alt ${chars(entry.alt)}`)
@@ -189,9 +215,9 @@ export async function checkListing({ pluginDir, spec, manifest, results, outPath
     const b = await checkIcon(fromPlugin(p), { plugin: false }, errors, warnings)
     if (typeof b === 'number') { total += b; facts.push(`editor  ${p.padEnd(34)} ${(b / KB).toFixed(0).padStart(4)} KB`) }
   }
-  facts.push(`images total ${(total / KB).toFixed(0)} KB (budget ${(LIMITS.totalBytes / KB).toFixed(0)} KB, Orca ${(FRAME.imageRules.totalMaxBytes / KB).toFixed(0)} KB)`)
+  facts.push(`images total ${(total / KB).toFixed(0)} KB (budget ${(budget.totalBytes / KB).toFixed(0)} KB, Orca ${(FRAME.imageRules.totalMaxBytes / KB).toFixed(0)} KB)`)
   if (total > FRAME.imageRules.totalMaxBytes) errors.push(`images total ${(total / KB).toFixed(0)} KB, over Orca's 8 MB`)
-  else if (total > LIMITS.totalBytes) errors.push(`images total ${(total / KB).toFixed(0)} KB, over the 1.6 MB budget`)
+  else if (total > budget.totalBytes) errors.push(`images total ${(total / KB).toFixed(0)} KB, over the ${(budget.totalBytes / KB).toFixed(0)} KB budget`)
 
   // Texts.
   checkText(spec, errors, warnings)
@@ -219,7 +245,7 @@ export function listedImageProblems({ spec, fileFor, palette = false }) {
   const entries = [['cover', spec.cover], ...(spec.screenshots ?? []).map((s, i) => [`shot-${i + 1}`, s])]
   for (const [id, entry] of entries) {
     const errors = []
-    checkListingImage(fileFor(entry), id === 'cover' ? 'cover' : 'screenshot', { palette }, errors, [])
+    checkListingImage(fileFor(entry), id === 'cover' ? 'cover' : 'screenshot', { palette, imageBytes: budgetOf(spec).imageBytes }, errors, [])
     for (const e of errors) problems.push(`${entry.out} (${id}): ${e.replace(/^[^:]+: /, '')}`)
   }
   return problems

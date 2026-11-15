@@ -99,6 +99,7 @@ scroll with `wheel` by the measured distance.
 |---|---|
 | `accent` | The plugin's accent colour (see the table under "Colour accents"). |
 | `title` | `[distinctive word, "Viewer"]`. Line 1 must fit the 600 px column. |
+| `budget` | Optional. A documented exception to the image budget; see "Budget exception" under Checks. |
 | `icon` | The plugin icon, used on the cover and the slides. Default: `images/icon.png`. |
 | `cover.tagline` / `cover.chips` / `cover.chipMain` | At most 60 characters and 2 lines; at most 5 chips of ≤ 16 characters each; the index of the filled main chip (default 0). |
 | `*.out` | The final image path in the plugin (`images/cover.png`, `images/shot-<n>-<slug>.png`). |
@@ -183,6 +184,15 @@ Each act is followed by a 150 ms pause. Coordinates are CSS px of the stage view
 - A dark cover; at most one light slide, last only, whose alt ends with "Shown in Orca's light theme.".
 
 **Budget:** images total ≤ 1.6 MB (house), and ≤ 8 MB (Orca).
+
+**Budget exception.** Some plugins cannot meet the house budget losslessly, for example an image viewer whose
+slides are mostly photos. Such a plugin may document an exception in its spec:
+`"budget": {"imageKB": 480, "totalKB": 2300, "reason": "photo slides cannot be lossless within 400 KB"}`.
+- `imageKB` can be 400–512 and `totalKB` 1638–2560. The caps keep a plugin far below orca.dev's ~5 MiB size hold and
+  Orca's own limits.
+- `reason` is required (at least 20 characters). `--check` prints it as a warning on every run.
+- Try a calmer UI state, a smaller photo area or `--palette` first. Use the exception only when those make the
+  images worse. Image Viewer uses it.
 
 **Stage**
 - No `pageerror`, `console.error` or failed request.
