@@ -8,7 +8,8 @@
 orca-plugin/                 хаб (этот репозиторий, проект Orca в группе "orca-plugin")
 ├── orca-catalog.json        каталог для Orca: Settings → Plugins → ⋯ → Catalog sources…
 ├── plugins/<name>/          submodule = отдельный репозиторий плагина = отдельный проект Orca
-├── scripts/                 new-plugin.sh, release-plugin.sh, github-protect.sh, orca-group.sh
+├── scripts/                 new-plugin.sh, release-plugin.sh, github-protect.sh, orca-group.sh,
+│                            orca-window.sh, directory-check.sh, listing-image.sh (+ lib/listing)
 ├── templates/               LICENSE и CHANGELOG для новых плагинов
 └── .claude/skills/          навыки для работы с плагинами (см. ниже)
 ```
@@ -34,7 +35,8 @@ orca-plugin/                 хаб (этот репозиторий, проек
    (он вызывает `scripts/github-protect.sh`). Коллабораторов не добавлять без явной просьбы.
 4. **Публикация в каталог orca.dev** (топик `orca-plugin` у репозитория плагина) — только по явной
    просьбе пользователя. Наш собственный каталог (`orca-catalog.json`) обновляется
-   `scripts/release-plugin.sh`.
+   `scripts/release-plugin.sh`. Перед каждым релизом, который уйдёт в orca.dev, обязательно
+   `scripts/directory-check.sh <name> --update` без ошибок (см. «Что задерживает плагин в orca.dev»).
 5. **Одобрение плагина** (`--approve <fingerprint>`) — только для плагина и доступа, о которых
    просил пользователь. Перед одобрением покажи, что он получит (`orca plugin inspect`).
 
@@ -57,6 +59,10 @@ scripts/new-plugin.sh <name> --template editor --title "Name" --description "…
 scripts/release-plugin.sh <name> <x.y.z>
 scripts/orca-group.sh status
 scripts/github-protect.sh Sergei-Popov/<repo>
+scripts/orca-window.sh hide|show    # спрятать окно Orca (и из полноэкранного) для shot --act/--theme
+scripts/directory-check.sh <name> [--update]   # перед релизом в orca.dev: валидатор каталога на ПК + самопроверка
+scripts/listing-image.sh <name> --dry-run --check --sheet   # картинки листинга (обложка, скриншоты) в стиле хаба,
+                                    # headless Chrome без окна Orca; стиль и схема — scripts/lib/listing/README.md
 
 # внутри plugins/<name>
 orca plugin dev watch . --check      # загрузить в Orca, перезагрузка при сохранении, логи
@@ -74,8 +80,10 @@ orca plugin shot local.<id> --editor <file>   # PNG редактора — см�
   Данные лежат в `~/Library/Application Support/orca/profiles/<profile>/profile-state.db`
   (домен `projectGroups`, у репозитория — `projectGroupId`); база только для чтения, Orca
   перезаписывает её из памяти.
-- Кастомные редакторы получают документ **не больше 64 МиБ**, для больших файлов Orca показывает
-  своё сообщение. Путь к файлу редактор не получает никогда.
+- Кастомные редакторы получают документ **не больше ~50 МиБ** (`MAX_PREVIEWABLE_BINARY_SIZE`;
+  64 МиБ — только лимит моста), для больших файлов Orca показывает своё сообщение. Путь к файлу
+  редактор не получает никогда. Файл скрипта/WASM/JSON во фрейме — до 16 МиБ, плагин — до 50 МиБ
+  и 2 000 файлов.
 - Orca сама проигрывает `.mp4/.m4v/.mov/.webm` и аудио `.mp3/.wav/.m4a/.aac/.ogg/.oga/.flac/.opus`
   во вкладке без лимита размера. Плагин с `priority: "default"` для этих типов отключил бы
   встроенный просмотр — используй `priority: "option"`, если не заменяешь его осознанно.
@@ -89,6 +97,27 @@ orca plugin shot local.<id> --editor <file>   # PNG редактора — см�
   WebAssembly, но `font-src` — только `'self' data:`.
 - Левый сайдбар (задачи, артефакты, автоматизации) плагинам закрыт: панели встают только в правый.
   `contributes.sidebarCards` зарезервирован под декларативные карточки, не под произвольный UI.
+
+## Что задерживает плагин в orca.dev
+
+Каталог проверяет релиз автоматически; сомнительное уходит «under review» к человеку (часами и
+днями). Выведено 2026-11-15 из истории `status.json` stablyai/orca-community-plugins; всё это
+ловит `scripts/directory-check.sh`:
+
+- **Отказ:** бинарные файлы в дереве (кроме PNG/JPEG/GIF/WebP и WOFF/WOFF2), архивы, TTF/OTF,
+  симлинки, сабмодули; даже один NUL-байт в `.ts`.
+- **«code»:** base64-блобы, которые раскодируются в WASM/шрифты/архивы — **и в тестах тоже**
+  (тестовые файлы строить кодом, байт за байтом); длинные цепочки `\xNN`/`\uNNNN`; `eval`.
+  Из-за этого висит Font Viewer 0.1.0.
+- **«content»:** файлы `.wasm` (Media Viewer 0.3.0).
+- **«size»:** файл больше ~2 МиБ или плагин больше ~5 МиБ (скриншоты считаются).
+- **«update»:** обновление добавляет расширения, возможности, команды, панели или меняет лицензию —
+  всё это закладывать сразу в первую версию.
+- **«name»:** название, начинающееся с чужого бренда («OpenAPI Preview», «Docker»); бренд — только
+  в описании, с «Independent; not affiliated with …».
+- **«pricing»:** цены, кредиты, «trial», «Pro».
+- Повторный тег с тем же содержимым не помогает; если задержка дольше ~суток — выпустить патч,
+  который убирает причину.
 
 ## Плагины
 

@@ -222,6 +222,104 @@
       ]
     },
     {
+      "id": "sergei-popov.har-viewer",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-har-viewer.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "fb46f7db75da1a4f477d3cb99b61e6c4255b8946",
+          "contentHash": "f6fb1b221d1c6f168d1eb2510caf4e38e139cc738af874c322ea5e5dbc32464b",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "HAR Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "HAR Viewer",
+              "detail": ".har"
+            },
+            {
+              "kind": "customEditors",
+              "name": "HAR Viewer",
+              "detail": ".har.zip"
+            }
+          ],
+          "fileTypes": [
+            "har"
+          ],
+          "editorFileTypes": [
+            "har"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.har-viewer/images/icon.png",
+              "alt": "HAR Viewer",
+              "sha256": "5040dfe297f16f6984f006d7b729305c962dbd8b8d78846853701e274882d5da",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.har-viewer/images/cover.png",
+              "alt": "Known secrets masked, 28 values in 15 requests: the request list and waterfall, a failed POST /v1/reports/export selected.",
+              "sha256": "de219696fc156c0b46c1c3cf96c9d40b3eb534559c0e2e660ed1bd20d9cf1fa3",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.har-viewer/images/shot-1-agent-export.png",
+                "alt": "A Markdown digest of the 4 failed requests, bodies cut to 2,000 characters and known secrets masked, to copy or save as .md.",
+                "sha256": "5a63e7fb032b5e3684ae177b634d2a30dea6b8a8a926769dc02e13b05e82b8f5",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.har-viewer/images/shot-2-errors.png",
+                "alt": "The Errors filter keeps 4 of 29 requests, beside an overview of their types, status codes and the 2 domains they came from.",
+                "sha256": "0b3ed5c6ce7b48592651aff4a30fe99f4191c85308e03198c8da65081dd3a548",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.har-viewer/images/shot-3-timing.png",
+                "alt": "A slow request by phase: DNS 18 ms, connection 42 ms, SSL/TLS 31 ms, waiting 1.20 s, and Server-Timing's report query 1.10 s.",
+                "sha256": "8ea1d277d15c08703e921c105764d73a8e4f9ce8dd82b5887eb43325ebf742a5",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.har-viewer/images/shot-4-json-tree.png",
+                "alt": "A 2.4 kB JSON response in Tree view, Source a click away: 20 orders, the first opened to its id, customer, total and status.",
+                "sha256": "edd5a4b2a6ecae7db41dd978695da5ab4bcd52b7abe47c19da7e27df896a9017",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.har-viewer/images/shot-5-websocket.png",
+                "alt": "Follow one order: 4 of 19 socket messages match 48207, sent and received, one opened as JSON. Shown in Orca's light theme.",
+                "sha256": "d411b2a2be5a116bbb760a5099b58c359c37259d3d43e6ba63fa9c2ce2a23a05",
+                "width": 1600,
+                "height": 1000
+              }
+            ]
+          },
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-har-viewer",
+          "changelog": "Added\n\n- **HAR Viewer** custom editor, the default view for .har and .har.zip (Archive Viewer, when\n  installed, keeps .har.zip and offers HAR Viewer in the view switcher): read-only and\n  offline. Reads HAR 1.2 from Chrome, Edge, Firefox, Safari, Playwright and agent tools with\n  their extra fields, base64 bodies, missing or -1 timings and requests without pages.\n- .har.zip from Playwright with bodies in separate files, unpacked in the tab (vendored\n  fflate 0.8.3).\n- A virtualized request list with sortable columns (status, method, domain, path, type,\n  initiator, transferred, size, time) and a waterfall with a time scale and each page's\n  DOMContentLoaded and load lines; a resizable split; keyboard navigation.\n- Filters: text over the URL, headers or everything including bodies, with negation, phrases,\n  regular expressions and properties such as status:5xx or larger-than:100k; type chips;\n  errors only; page and domain.\n- Details tabs: Headers with raw views, Payload, Response (JSON tree, highlighted source,\n  image, font, muted audio and video previews, hex), Cookies, Timing with Server-Timing,\n  WebSocket messages and Initiator with the call stack and related requests.\n- An overview with totals, requests by type and status, a per-domain table that filters the\n  list, and the slowest, largest and failed requests; a summary strip under the list.\n- Copy as cURL and as fetch (every value an option's argument; header names that are not tokens\n  left out; requests with control characters in the URL, method or headers not copied); \"Export for agent\", a Markdown digest of selected, failed or\n  listed requests with bodies cut and known secret patterns masked, to copy or save.\n- \"Mask secrets\" with a banner counting what was masked, and \"Save sanitized…\" for a masked\n  .har or .har.zip. Masking knows credential headers and cookies (folded and nameless\n  ones too), secret-named parameters in URLs, fragments and hash routes, form fields\n  (urlencoded, multipart, plain tex",
+          "updatedAt": "2026-11-15"
+        }
+      ],
+      "description": "Shows .har and Playwright .har.zip files as a network log: request list, waterfall, filters and each request's headers, payload, response, cookies, timing and WebSocket frames. Copy as cURL, export an agent digest, save a masked copy. Independent; not affiliated with Playwright or any browser maker.",
+      "categories": [
+        "viewers",
+        "developer"
+      ]
+    },
+    {
       "id": "sergei-popov.media-viewer",
       "source": {
         "kind": "git",

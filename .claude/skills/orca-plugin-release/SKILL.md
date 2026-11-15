@@ -12,8 +12,16 @@ description: >-
 
 - The plugin's `develop` holds everything for the release (features merged `--no-ff`).
 - `CHANGELOG.md` has the changes under `## [Unreleased]`.
+- The manifest's icon, cover and screenshots show the current UI (see "Listing images" below):
+  the release copies them into the catalog, and orca.dev shows them.
 - Both the plugin and the hub working trees are clean; `gh auth status` is logged in.
 - Pick the version (semver): breaking manifest/behaviour change → major, feature → minor, fix → patch.
+- **For anything that goes to orca.dev:** `scripts/directory-check.sh <name> --update` passes on the
+  plugin's `develop`. It runs the directory's own validator (Orca main, on the PC) and a self-scan for
+  what the private indexer rejects or holds: binary files, base64 binary blobs (tests included),
+  escape runs, `.wasm`, size, brand-led names, pricing words. See CLAUDE.md "Что задерживает плагин в
+  orca.dev". An update that adds file types, capabilities, commands, panels or events, or changes the
+  licence, is held as "update": batch such changes.
 
 ## Release
 
@@ -49,14 +57,61 @@ commit and hash), so ask first. Then:
 gh repo edit Sergei-Popov/orca-<name> --add-topic orca-plugin
 ```
 
-The listing appears within about an hour at `https://orca.dev/plugins/Sergei-Popov/orca-<name>`.
-An `icon` (square PNG ≥128×128, ≤256 KB), a `cover` (`images/cover.png`, 16:10, ≥800×500, ≤1 MB)
-and up to 6 `screenshots` (≥1280×800, ≤1.5 MB, optional `theme: light|dark`) in the manifest make
-the listing better. Take them with `orca plugin shot <key> --editor <file> --width 1440 --height 900`:
-it captures only the plugin, never the user's sidebar or files. Use generated demo content (silent
-clips for media), not the user's files. `--act`/`--theme` need Orca's window hidden — hide it with
-`osascript -e 'tell application "System Events" to set visible of process "Orca" to false'` and show
-it again afterwards. The player UI follows Orca's language: switch Settings → Appearance → Language
-to English for the shots and back to System after. Keys that change saved preferences (speed,
-repeat) persist between shots, and their badges fade only after ~0.7 s while acts run in
-milliseconds — avoid them or reset them in a throwaway shot.
+The listing appears within about an hour at `https://orca.dev/plugins/Sergei-Popov/orca-<name>`
+(the indexer runs every 30 minutes; until then the page says "Waiting for the indexer"). A version
+can be held "Under review" first; the status is in `status.json` of
+`stablyai/orca-community-plugins`:
+
+```sh
+gh api repos/stablyai/orca-community-plugins/contents/status.json -H "Accept: application/vnd.github.raw" \
+  | jq '.repos["sergei-popov/orca-<name>"]'
+```
+
+Check 30–60 minutes after adding the topic. `listed` is done. If it is `rejected` with a fixable reason
+(validation, binary-files, licence…), fix it and release a patch. If it is `under-review`, don't re-tag the
+same content: that only replaces the pending review. Holds after 2026-11-07 that were approved at all were
+approved within about a day. Past that, release a patch that removes the likely trigger (see CLAUDE.md).
+
+## Listing images
+
+Build them with the hub's tool, never with screenshots of Orca's window:
+
+```sh
+scripts/listing-image.sh <name> --dry-run --check --sheet   # PNGs to .orca/listing/out/, sheet.png
+scripts/listing-image.sh <name> --check --write-manifest    # images/*.png + orca-plugin.json
+```
+
+House style, the `tools/listing.json` schema, the acts and the checks are in
+`scripts/lib/listing/README.md`.
+
+**What the tool does**
+- It renders the plugin's real editor on a local stage in headless Google Chrome, with audio muted.
+- The stage reproduces Orca 1.4.258's guest frame: its default tokens, its CSP and `window.orca`.
+- It composes the house style:
+  - a 1600×1000 dark cover with the title, tagline and chips;
+  - 4–5 slides of 1600×1000 with a headline;
+  - at most one light slide, and it comes last.
+- It checks sizes, alpha, bytes (≤ 400 KB each, ≤ 1.6 MB in total), alts, headlines, icons, stage
+  errors, and access to unknown `orca.*` members or events. Nothing on the stage reaches past
+  127.0.0.1: other origins, navigation and popups fail the build.
+- A failed image never replaces the one in `images/`, and `--write-manifest` writes only when every
+  listed image exists and is valid.
+
+**Workflow**
+1. Make the demo files in the plugin's `.orca/listing/samples/`, with the generator in its
+   `tools/` or from its committed test files. Never use the user's files. Use only fictional
+   names, silent media and OFL fonts.
+2. Write the spec, then run the `--dry-run` command above.
+3. Open every PNG in `.orca/listing/out/` and `sheet.png` with the Read tool. Fix the acts and
+   `origin`. Copy the values the capture shows into the alts. Repeat until `check: passed`.
+4. Run the `--check --write-manifest` command above. The manifest gets `{path, alt}` only, with no
+   `caption` or `theme`. Then run `orca plugin validate . --json`.
+5. Delete the obsolete images the run lists, unless the README uses them.
+
+**Rules**
+- Alts must be 1–140 characters; aim for 125 or fewer. `orca plugin validate` refuses anything
+  over 160.
+- `orca plugin shot` remains only for `scripts/listing-image.sh <name> --parity <file>`. That
+  compares the stage with Orca's own render once per plugin. It opens a tab in Orca, so it needs
+  the user's OK every time.
+- Do not hide Orca's window or change Orca's language for listing images.

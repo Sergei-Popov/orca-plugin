@@ -1,0 +1,78 @@
+{
+  "orca": "1.4.258",
+  "sources": {
+    "tokens": "out/renderer/assets/client-CbCMV_Dg.css (:root and .dark rules)",
+    "tokenAllowlist": "out/shared/plugins/frames/plugin-panel-design-tokens.js (PANEL_DESIGN_TOKEN_ALLOWLIST)",
+    "tokenSerialisation": "out/renderer/assets/use-plugin-frame-entry-*.js: `--orca-<name>:<getComputedStyle value>` joined by `;`",
+    "guestCsp": "out/shared/plugins/frames/plugin-panel-shell.js (PLUGIN_GUEST_CSP)",
+    "guestShell": "out/shared/plugins/frames/plugin-panel-shell.js (buildPluginGuestShellHtml)",
+    "editorHtml": "out/main/index.js: a .ts/.js editor entry becomes `<div id=\"root\"></div>` + `<script type=\"module\" src=\"./<basename>?orca-module\">`",
+    "api": "out/shared/plugins/workers/plugin-host-api*.js: PLUGIN_HOST_API_MAJOR 1; an isolated editor guest is offered methods up to minor 2",
+    "imageRules": "out/main/chunks/plugin-manifest-*.js (P) and plugin-manifest-catalog-images-*.js (G, ht)"
+  },
+  "tokenAllowlist": [
+    "--background", "--foreground", "--card", "--card-foreground", "--popover", "--popover-foreground",
+    "--primary", "--primary-foreground", "--secondary", "--secondary-foreground", "--muted",
+    "--muted-foreground", "--accent", "--accent-foreground", "--destructive", "--destructive-foreground",
+    "--border", "--input", "--ring", "--radius"
+  ],
+  "tokens": {
+    "light": {
+      "--background": "#fff",
+      "--foreground": "#0a0a0a",
+      "--card": "#fff",
+      "--card-foreground": "#0a0a0a",
+      "--popover": "#fff",
+      "--popover-foreground": "#0a0a0a",
+      "--primary": "#171717",
+      "--primary-foreground": "#fafafa",
+      "--secondary": "#f5f5f5",
+      "--secondary-foreground": "#171717",
+      "--muted": "#f5f5f5",
+      "--muted-foreground": "#696969",
+      "--accent": "#f5f5f5",
+      "--accent-foreground": "#171717",
+      "--destructive": "#e40014",
+      "--destructive-foreground": "#fff",
+      "--border": "#e5e5e5",
+      "--input": "#e5e5e5",
+      "--ring": "#a1a1a1",
+      "--radius": ".625rem"
+    },
+    "dark": {
+      "--background": "#0a0a0a",
+      "--foreground": "#f0f0f0",
+      "--card": "#171717",
+      "--card-foreground": "#f0f0f0",
+      "--popover": "#171717",
+      "--popover-foreground": "#f0f0f0",
+      "--primary": "#e5e5e5",
+      "--primary-foreground": "#171717",
+      "--secondary": "#262626",
+      "--secondary-foreground": "#f0f0f0",
+      "--muted": "#262626",
+      "--muted-foreground": "#acacac",
+      "--accent": "#404040",
+      "--accent-foreground": "#f0f0f0",
+      "--destructive": "#ff6568",
+      "--destructive-foreground": "#450a0a",
+      "--border": "#ffffff12",
+      "--input": "#ffffff26",
+      "--ring": "#737373",
+      "--radius": ".625rem"
+    }
+  },
+  "guestCsp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'",
+  "tokensStyleId": "orca-design-tokens",
+  "editorEntryHtml": "<div id=\"root\"></div>\n<script type=\"module\" src=\"./{basename}?orca-module\"></script>\n",
+  "api": { "major": 1, "minor": 2 },
+  "frameMembers": ["api", "locale", "document", "on", "host", "plugin", "storage", "settings", "secrets", "shell", "files"],
+  "imageRules": {
+    "icon": { "formats": ["png", "webp"], "maxBytes": 262144, "minWidth": 128, "minHeight": 128, "square": true },
+    "cover": { "formats": ["png", "jpeg", "webp"], "maxBytes": 1048576, "minWidth": 800, "minHeight": 500 },
+    "screenshot": { "formats": ["png", "jpeg", "webp"], "maxBytes": 1572864, "minWidth": 1280, "minHeight": 800 },
+    "maxSide": 4096,
+    "totalMaxBytes": 8388608,
+    "animated": "refused (acTL in a PNG, the animation flag in a WebP)"
+  }
+}

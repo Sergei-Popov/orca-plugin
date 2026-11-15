@@ -13,3 +13,23 @@
 	url = https://github.com/Sergei-Popov/orca-font-viewer.git
 	branch = develop
 	ignore = all
+[submodule "plugins/har-viewer"]
+	path = plugins/har-viewer
+	url = https://github.com/Sergei-Popov/orca-har-viewer.git
+	branch = develop
+	ignore = all
+[submodule "plugins/class-viewer"]
+	path = plugins/class-viewer
+	url = https://github.com/Sergei-Popov/orca-class-viewer.git
+	branch = develop
+	ignore = all
+[submodule "plugins/image-viewer"]
+	path = plugins/image-viewer
+	url = https://github.com/Sergei-Popov/orca-image-viewer.git
+	branch = develop
+	ignore = all
+[submodule "plugins/api-spec-viewer"]
+	path = plugins/api-spec-viewer
+	url = https://github.com/Sergei-Popov/orca-api-spec-viewer.git
+	branch = develop
+	ignore = all
