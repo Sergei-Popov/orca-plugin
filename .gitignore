@@ -3,3 +3,7 @@ node_modules/
 .orca/
 # local test media
 .media-test/
+
+# listing image tool (scripts/lib/listing): npm dependencies, Python caches
+scripts/lib/listing/node_modules/
+scripts/lib/__pycache__/

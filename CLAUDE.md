@@ -9,7 +9,7 @@ orca-plugin/                 хаб (этот репозиторий, проек
 ├── orca-catalog.json        каталог для Orca: Settings → Plugins → ⋯ → Catalog sources…
 ├── plugins/<name>/          submodule = отдельный репозиторий плагина = отдельный проект Orca
 ├── scripts/                 new-plugin.sh, release-plugin.sh, github-protect.sh, orca-group.sh,
-│                            orca-window.sh
+│                            orca-window.sh, directory-check.sh, listing-image.sh (+ lib/listing)
 ├── templates/               LICENSE и CHANGELOG для новых плагинов
 └── .claude/skills/          навыки для работы с плагинами (см. ниже)
 ```
@@ -61,6 +61,8 @@ scripts/orca-group.sh status
 scripts/github-protect.sh Sergei-Popov/<repo>
 scripts/orca-window.sh hide|show    # спрятать окно Orca (и из полноэкранного) для shot --act/--theme
 scripts/directory-check.sh <name> [--update]   # перед релизом в orca.dev: валидатор каталога на ПК + самопроверка
+scripts/listing-image.sh <name> --dry-run --check --sheet   # картинки листинга (обложка, скриншоты) в стиле хаба,
+                                    # headless Chrome без окна Orca; стиль и схема — scripts/lib/listing/README.md
 
 # внутри plugins/<name>
 orca plugin dev watch . --check      # загрузить в Orca, перезагрузка при сохранении, логи

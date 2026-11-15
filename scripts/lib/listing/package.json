@@ -1,0 +1,17 @@
+{
+  "name": "orca-plugin-listing-images",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Builds the orca.dev listing images (cover and screenshots) of a plugin of this hub. Entry point: scripts/listing-image.sh.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "esbuild": "0.28.2",
+    "playwright-core": "1.65.1",
+    "sharp": "0.35.5"
+  }
+}
