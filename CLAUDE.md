@@ -127,3 +127,4 @@ orca plugin shot local.<id> --editor <file>   # PNG редактора — см�
 | `archive-viewer` | `Sergei-Popov/orca-archive-viewer` | Архивы `.zip`/`.jar`/`.tar.gz` во вкладке: дерево файлов, превью, сохранение файла |
 | `font-viewer`  | `Sergei-Popov/orca-font-viewer`     | Шрифты `.ttf`/`.otf`/`.woff`/`.woff2` во вкладке: образец, символы, оси, сведения |
 | `har-viewer`   | `Sergei-Popov/orca-har-viewer`      | Записи сети `.har`/`.har.zip`: список запросов и водопад, маскирование секретов, выгрузка для агента |
+| `class-viewer` | `Sergei-Popov/orca-class-viewer`    | Файлы `.class` и архивы `.jar`/`.jmod`: объявления, байткод как javap, структура, пул констант |
