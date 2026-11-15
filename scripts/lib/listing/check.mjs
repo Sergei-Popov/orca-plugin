@@ -154,7 +154,7 @@ function checkText(spec, errors, warnings) {
  * Everything `--check` validates. `results` are this run's build results; images not built in this
  * run (--only) are checked where they are now (the dry-run folder, else the plugin's images/).
  */
-export async function checkListing({ pluginDir, spec, manifest, results, outPathFor, palette, dryRun }) {
+export async function checkListing({ pluginDir, spec, manifest, results, outPathFor, palette, dryRun, writeManifest = false }) {
   const errors = []
   const warnings = []
   const facts = []
@@ -196,14 +196,33 @@ export async function checkListing({ pluginDir, spec, manifest, results, outPath
   // Texts.
   checkText(spec, errors, warnings)
 
-  // The manifest's listing fields: written by --write-manifest, so only a note in a dry run.
-  const listed = [manifest.cover, ...(manifest.screenshots ?? [])].filter(Boolean)
-  const stale = listed.some((x) => 'caption' in x || 'theme' in x)
+  // The manifest's listing fields. With --write-manifest (not a dry run) the check judges the
+  // manifest this run is about to write; otherwise the file on disk, and only a note in a dry run.
   const plan = planManifest({ pluginDir, manifest, spec })
+  const rewriting = writeManifest && !dryRun
+  const judged = rewriting ? JSON.parse(plan.text) : manifest
+  const listed = [judged.cover, ...(judged.screenshots ?? [])].filter(Boolean)
+  const stale = listed.some((x) => 'caption' in x || 'theme' in x)
   const note = (msg) => (dryRun ? warnings : errors).push(msg)
   if (stale) note('orca-plugin.json still has caption/theme in cover or screenshots: run --write-manifest')
-  else if (plan.changed) note('orca-plugin.json cover/screenshots differ from the spec: run --write-manifest')
+  else if (!rewriting && plan.changed) note('orca-plugin.json cover/screenshots differ from the spec: run --write-manifest')
+  if (rewriting) facts.push(plan.changed ? 'manifest: cover and screenshots will be rewritten from the spec' : 'manifest: already matches the spec')
   return { errors, warnings, facts, total }
+}
+
+/**
+ * What would make Orca refuse a manifest that lists the spec's images: a missing file, or one that
+ * breaks Orca's image rules (or the house size and format). `fileFor(entry)` is where to look.
+ */
+export function listedImageProblems({ spec, fileFor, palette = false }) {
+  const problems = []
+  const entries = [['cover', spec.cover], ...(spec.screenshots ?? []).map((s, i) => [`shot-${i + 1}`, s])]
+  for (const [id, entry] of entries) {
+    const errors = []
+    checkListingImage(fileFor(entry), id === 'cover' ? 'cover' : 'screenshot', { palette }, errors, [])
+    for (const e of errors) problems.push(`${entry.out} (${id}): ${e.replace(/^[^:]+: /, '')}`)
+  }
+  return problems
 }
 
 /** The manifest with `cover` = {path, alt} and `screenshots` = [{path, alt}] in spec order. */

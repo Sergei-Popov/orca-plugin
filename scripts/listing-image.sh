@@ -13,13 +13,15 @@
 #   --only cover|N      build only the cover or screenshot N (1-based)
 #   --check             validate images, icons, texts, budget and stage logs after the build
 #   --sheet             write <out-dir>/sheet.png: card sizes, safe zones, icons, slides, family row
-#   --write-manifest    rewrite orca-plugin.json cover/screenshots as {path, alt} in spec order
+#   --write-manifest    rewrite orca-plugin.json cover/screenshots as {path, alt} in spec order, only
+#                       if the build (and --check) passed and every listed image exists and is valid
 #   --plain             screenshots as bare stage captures (no headline or backdrop)
 #   --palette           palette PNG (only after looking at the glow crop on the sheet)
 #   --parity <file>     `orca plugin shot` of <file> next to the stage render at scale 1 (asks first)
 #
 # macOS only (Google Chrome in /Applications; fonts differ elsewhere). Runs `npm ci` in
-# scripts/lib/listing on first use. Exit 0: every image built and, with --check, passed.
+# scripts/lib/listing on first use. An image whose build failed never replaces the one in images/
+# (it goes to <out-dir>/out/). Exit 0: every image built and, with --check, passed.
 # House style, spec schema and acts: scripts/lib/listing/README.md.
 . "$(dirname "$0")/lib/common.sh"
 
@@ -58,7 +60,7 @@ while [[ $# -gt 0 ]]; do
     --out-dir) outdir="${2:-}"; shift 2 ;;
     --parity) parity="${2:-}"; shift 2 ;;
     --check|--sheet|--write-manifest|--plain|--palette|--dry-run) flags+=("$1"); shift ;;
-    -h|--help) sed -n '2,26p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
     -*) die "unknown option $1" ;;
     *) [[ -z "$target" ]] || die "one plugin at a time ($target, $1)"; target="$1"; shift ;;
   esac
@@ -90,17 +92,23 @@ node_args+=("${flags[@]+"${flags[@]}"}")
 if [[ -n "$parity" ]]; then
   # `orca plugin shot` opens the file in a tab in Orca and may switch workspaces, so it needs the
   # user's OK every time. No --theme and no --act, so Orca's window can stay where it is.
-  [[ -f "$dir/$parity" || -f "$parity" ]] || die "--parity: $parity not found"
-  work="${outdir:-$dir/.orca/listing}"; mkdir -p "$work"
+  # One absolute path for both tools: `orca plugin shot` resolves a relative path against the cwd,
+  # the stage against the plugin folder. Plugin-relative first, then cwd-relative.
+  if [[ "$parity" == /* ]]; then parity_file="$parity"
+  elif [[ -f "$dir/$parity" ]]; then parity_file="$dir/$parity"
+  else parity_file="$PWD/$parity"; fi
+  [[ -f "$parity_file" ]] || die "--parity: $parity not found (neither in $dir nor in $PWD)"
+  parity_file="$(cd "$(dirname "$parity_file")" && pwd)/$(basename "$parity_file")"
+  work="${outdir:-$dir/.orca/listing}"; mkdir -p "$work"; work="$(cd "$work" && pwd)"
   if [[ "${LISTING_PARITY_OK:-}" != "1" ]]; then
     [[ -t 0 ]] || die "--parity opens a tab in Orca: run it in a terminal and confirm, or set LISTING_PARITY_OK=1 after the user agreed"
-    read -r -p "This opens $parity in a tab in Orca (orca plugin shot). Continue? [y/N] " answer
+    read -r -p "This opens $parity_file in a tab in Orca (orca plugin shot). Continue? [y/N] " answer
     [[ "$answer" == [yY]* ]] || die "parity cancelled"
   fi
-  log "orca plugin shot $parity (960x536, Orca's current theme)"
-  shot_args=(plugin shot "$dir" --editor "$parity" --width 960 --height 536 --out "$work/parity-orca.png" --json)
+  log "orca plugin shot $parity_file (960x536, Orca's current theme)"
+  shot_args=(plugin shot "$dir" --editor "$parity_file" --width 960 --height 536 --out "$work/parity-orca.png" --json)
   "$ORCA" "${shot_args[@]}" || die "orca plugin shot failed"
-  exec node "$LISTING/compose.mjs" --plugin "$dir" --work "$(cd "$work" && pwd)" --parity "$parity" --parity-orca "$work/parity-orca.png"
+  exec node "$LISTING/compose.mjs" --plugin "$dir" --work "$work" --parity "$parity_file" --parity-orca "$work/parity-orca.png"
 fi
 
 log "Listing images of $(basename "$dir")"

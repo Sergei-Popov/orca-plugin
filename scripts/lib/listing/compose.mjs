@@ -7,7 +7,10 @@
 //
 // --work     generated files (raw/, out/, sheet.png, report.json); default <plugin>/.orca/listing
 // --dry-run  final PNGs go to <work>/out/ instead of the spec's `out` paths; the manifest is never written
-// Exit 0: every image built (and passed --check when given). Exit 1: a build or check failure.
+// An image whose build has an error never reaches its `out` path: it goes to <work>/out/ instead.
+// --write-manifest writes only when the build (and --check) passed and every image the manifest
+// would list exists and meets Orca's image rules.
+// Exit 0: every image built (and passed --check when given). Exit 1: a build, check or manifest failure.
 
 import fs from 'node:fs'
 import path from 'node:path'
@@ -15,7 +18,7 @@ import { parseArgs } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import { createStage, launchChrome } from './stage.mjs'
-import { checkListing, planManifest, writeParity, writeSheet } from './check.mjs'
+import { checkListing, listedImageProblems, planManifest, writeParity, writeSheet } from './check.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const W = 1600
@@ -93,7 +96,8 @@ if (args.only) {
   selected = args.only === 'cover' ? targets.slice(0, 1) : targets.filter((t) => t.kind === 'shot' && String(t.index + 1) === args.only)
   if (!selected.length) fail(`--only ${args.only}: no such image (cover or 1..${spec.screenshots.length})`)
 }
-const outPathFor = (entry) => (dryRun ? path.join(work, 'out', path.basename(entry.out)) : fromPlugin(entry.out))
+const workOutFor = (entry) => path.join(work, 'out', path.basename(entry.out))
+const outPathFor = (entry) => (dryRun ? workOutFor(entry) : fromPlugin(entry.out))
 
 const iconPath = fromPlugin(spec.icon ?? manifest.icon ?? 'images/icon.png')
 if (!fs.existsSync(iconPath)) fail(`icon not found: ${iconPath}`)
@@ -102,7 +106,7 @@ if (!fs.existsSync(fontCss)) fail(`${fontCss} is missing; run npm ci in ${here}`
 const css = fs.readFileSync(path.join(here, 'templates', 'listing.css'), 'utf8').replaceAll('{{fontCss}}', pathToUrl(fontCss))
 
 fs.mkdirSync(path.join(work, 'raw'), { recursive: true })
-if (dryRun) fs.mkdirSync(path.join(work, 'out'), { recursive: true })
+fs.mkdirSync(path.join(work, 'out'), { recursive: true })
 
 // ── Build ──
 const results = []
@@ -111,7 +115,7 @@ const browser = await launchChrome()
 const stage = await createStage({ pluginDir, browser, log })
 try {
   for (const t of selected) {
-    const r = { id: t.id, kind: t.kind, out: outPathFor(t.entry), errors: [], warnings: [] }
+    const r = { id: t.id, kind: t.kind, entry: t.entry, out: outPathFor(t.entry), written: null, errors: [], warnings: [] }
     results.push(r)
     try {
       await buildOne(t, r)
@@ -120,9 +124,10 @@ try {
       if (e.stageErrors?.length) r.errors.push(...e.stageErrors)
     }
     if (r.errors.length) buildFailed = true
-    log(`${r.errors.length ? 'FAIL' : 'ok  '} ${t.id.padEnd(7)} ${path.relative(process.cwd(), r.out)}` +
+    log(`${r.errors.length ? 'FAIL' : 'ok  '} ${t.id.padEnd(7)} ${r.written ? path.relative(process.cwd(), r.written) : '(no image)'}` +
       (r.bytes ? `  ${r.width}x${r.height}  ${(r.bytes / 1024).toFixed(0)} KB` : '') +
       (r.ui ? `  ui ${r.ui.width}x${r.ui.height} @${r.ui.scale}x` : ''))
+    if (r.written && r.written !== r.out) log(`       not written to ${path.relative(pluginDir, r.out)}: the build failed, so the image went to the work folder`)
     for (const e of r.errors) log(`       error: ${e}`)
     for (const w of r.warnings) log(`       warn: ${w}`)
   }
@@ -132,9 +137,11 @@ try {
 
 // ── Check, sheet, manifest ──
 let checkFailed = false
+let manifestFailed = false
+const writeManifest = args['write-manifest']
 const report = { plugin: pluginDir, spec: specPath, work, dryRun, plain: args.plain, results }
 if (args.check) {
-  const c = await checkListing({ pluginDir, spec, manifest, results, outPathFor, palette: args.palette, dryRun, only: args.only })
+  const c = await checkListing({ pluginDir, spec, manifest, results, outPathFor, palette: args.palette, dryRun, writeManifest })
   report.check = c
   for (const f of c.facts) log(`  ${f}`)
   for (const w of c.warnings) log(`warn: ${w}`)
@@ -144,20 +151,28 @@ if (args.check) {
 }
 if (args.sheet) {
   const sheet = path.join(work, 'sheet.png')
-  await writeSheet({ browser, pluginDir, spec, manifest, results, outPathFor, out: sheet, hubPlugins: path.resolve(here, '..', '..', '..', 'plugins'), check: report.check })
+  // This run's image when it built one (also a failed one), else the one in place.
+  const shownFor = (entry) => results.find((r) => r.entry === entry && r.written)?.written ?? outPathFor(entry)
+  await writeSheet({ browser, pluginDir, spec, manifest, results, outPathFor: shownFor, out: sheet, hubPlugins: path.resolve(here, '..', '..', '..', 'plugins'), check: report.check })
   report.sheet = sheet
   log(`sheet: ${sheet}`)
 }
 await browser.close()
-if (args['write-manifest']) {
+if (writeManifest) {
   const plan = planManifest({ pluginDir, manifest, spec })
-  report.manifest = { unreferenced: plan.unreferenced, changed: plan.changed }
+  // Orca refuses the whole install when one listed image is missing or breaks its rules, so every
+  // image the manifest would list must be in place, whether or not --check ran (--only included).
+  const problems = listedImageProblems({ spec, fileFor: dryRun ? (e) => [outPathFor(e), fromPlugin(e.out)].find((f) => fs.existsSync(f)) ?? outPathFor(e) : (e) => fromPlugin(e.out), palette: args.palette })
+  report.manifest = { unreferenced: plan.unreferenced, changed: plan.changed, problems }
   if (dryRun) {
     const preview = path.join(work, 'orca-plugin.preview.json')
     fs.writeFileSync(preview, plan.text)
     log(`manifest: dry run, not written; preview in ${preview}`)
-  } else if (buildFailed || checkFailed) {
-    log('manifest: not written, the build or the check failed')
+    for (const p of problems) log(`warn: manifest preview: ${p}`)
+  } else if (buildFailed || checkFailed || problems.length) {
+    manifestFailed = true
+    log(`manifest: not written, ${buildFailed || checkFailed ? 'the build or the check failed' : 'a listed image is missing or invalid'}`)
+    for (const p of problems) log(`error: manifest: ${p}`)
   } else {
     fs.writeFileSync(manifestPath, plan.text)
     log(`manifest: ${plan.changed ? 'cover and screenshots rewritten' : 'already up to date'} in ${manifestPath}`)
@@ -165,7 +180,7 @@ if (args['write-manifest']) {
   for (const f of plan.unreferenced) log(`  unreferenced image (delete it yourself if it is obsolete): ${f}`)
 }
 fs.writeFileSync(path.join(work, 'report.json'), JSON.stringify(report, null, 2) + '\n')
-process.exit(buildFailed || checkFailed ? 1 : 0)
+process.exit(buildFailed || checkFailed || manifestFailed ? 1 : 0)
 
 // ────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -229,19 +244,22 @@ async function buildOne(t, r) {
     if (diff !== 0) r.errors.push(`the UI was resampled or shifted in the panel (${diff} differing pixels)`)
   }
 
-  const out = outPathFor(e)
-  fs.mkdirSync(path.dirname(out), { recursive: true })
-  fs.writeFileSync(out, await encode(composed, args.palette))
-  const outMeta = await sharp(out).metadata()
+  const png = await encode(composed, args.palette)
+  const outMeta = await sharp(png).metadata()
   r.width = outMeta.width
   r.height = outMeta.height
-  r.bytes = fs.statSync(out).size
+  r.bytes = png.length
   r.rawBytes = fs.statSync(composed).size
   if (r.width !== W || r.height !== H) r.errors.push(`${r.width}x${r.height}, not ${W}x${H}`)
   if (r.bytes > MAX_BYTES) {
     r.errors.push(`${(r.bytes / 1024).toFixed(0)} KB is over the 400 KB budget: choose a calmer UI state or crop` +
       (args.palette ? '' : ' (--palette only after looking at the glow crop on the sheet)'))
   }
+  // Only a clean build replaces the image in the plugin; a failed one stays in the work folder.
+  const out = r.errors.length ? workOutFor(e) : outPathFor(e)
+  fs.mkdirSync(path.dirname(out), { recursive: true })
+  fs.writeFileSync(out, png)
+  r.written = out
 }
 
 /**

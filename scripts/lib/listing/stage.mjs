@@ -8,8 +8,14 @@
 //   design tokens on `:root` in `<style id="orca-design-tokens">`, the frame API, then the editor
 //   entry exactly as Orca's main process wraps a `.ts` entry.
 // - `window.orca` stands in for the part of the frame API the plugins use: api, locale, document,
-//   on('theme'), files.saveAs, shell.openExternal. Any other `orca.*` member is recorded and fails
-//   the build after the capture (not at access time: plugins feature-detect with `?.`).
+//   on('theme'), files.saveAs, shell.openExternal. Any other `orca.*` member, and `orca.on` for any
+//   other event, is recorded and fails the build after the capture (not at access time: plugins
+//   feature-detect with `?.`).
+// - Nothing leaves 127.0.0.1: every request to another origin is aborted, and, as Orca's main
+//   process fences an isolated guest, cross-document navigation and `window.open` do nothing.
+//   Each attempt fails the build, naming the URL.
+// - The server answers only `Host: 127.0.0.1:<port>` and serves only files whose real path is
+//   inside the plugin folder (no symlinks out of it).
 // - Acts are input only (mouse, keyboard, select, fill), never DOM edits.
 //
 // Values (tokens, CSP, entry HTML, document payload) come from orca-frame.json; see its `sources`.
@@ -80,7 +86,29 @@ function standInScript(cfg) {
   var waiting = []
   var subscribed = false
   window.__stage = { unknown: unknown, calls: calls, ready: false, get subscribed() { return subscribed } }
+  // Orca's main process fences an isolated guest: a cross-document navigation is cancelled and
+  // window.open is denied (returns null). The stage does the same and reports each attempt.
+  if (window.navigation && typeof window.navigation.addEventListener === 'function') {
+    window.navigation.addEventListener('navigate', function (event) {
+      if (event.destination && event.destination.sameDocument) return
+      if (event.cancelable) event.preventDefault()
+      console.error('[stage] blocked a navigation to ' + (event.destination && event.destination.url) + ': Orca keeps an editor on its document')
+    })
+  }
+  try {
+    Object.defineProperty(window, 'open', {
+      value: function (url) { console.error('[stage] blocked window.open(' + String(url) + '): Orca denies popups'); return null },
+      writable: false, configurable: false
+    })
+  } catch (_) {}
   function failure(code, message) { var e = new Error(message); e.code = code; e.retryable = false; return e }
+  // Events the stage sends: 'theme' (once, at the hello) and the document channel.
+  var EVENTS = { theme: true, 'editor.document': true }
+  function publicOn(name, fn) {
+    var event = String(name)
+    if (!EVENTS[event]) unknown.add("orca.on('" + event + "')")
+    return on(event, fn)
+  }
   function on(name, fn) {
     if (typeof fn !== 'function') throw new TypeError('orca.on needs a handler')
     var set = listeners.get(name) || new Set()
@@ -103,7 +131,7 @@ function standInScript(cfg) {
   function watch(name, target) {
     return new Proxy(target, {
       get: function (t, key, receiver) {
-        if (typeof key === 'string' && key !== 'then' && !(key in t)) unknown.add(name + '.' + key)
+        if (typeof key === 'string' && key !== 'then' && key !== 'toJSON' && !(key in t)) unknown.add(name + '.' + key)
         return Reflect.get(t, key, receiver)
       },
       has: function (t, key) {
@@ -131,9 +159,9 @@ function standInScript(cfg) {
     }
   })
   var orca = {
-    api: Object.freeze(C.api),
+    api: watch('orca.api', Object.freeze(C.api)),
     locale: C.locale,
-    on: on,
+    on: publicOn,
     document: watch('orca.document', documentApi),
     files: watch('orca.files', Object.freeze({
       saveAs: function (options) {
@@ -168,21 +196,33 @@ function standInScript(cfg) {
 export async function createStage({ pluginDir, browser, log = () => {} }) {
   const manifest = JSON.parse(fs.readFileSync(path.join(pluginDir, 'orca-plugin.json'), 'utf8'))
   let current = null // { html, docPath }
+  const rootReal = fs.realpathSync(pluginDir)
 
+  /** A file inside the plugin folder for a URL path: its real path must stay inside too. */
   function resolveFile(urlPath) {
     const abs = path.join(pluginDir, urlPath)
     if (!abs.startsWith(pluginDir + path.sep)) return null
     for (const c of [abs, abs + '.ts', abs + '.js', path.join(abs, 'index.ts'), path.join(abs, 'index.js')]) {
-      if (fs.existsSync(c) && fs.statSync(c).isFile()) return c
+      let real
+      try {
+        real = fs.realpathSync(c)
+      } catch {
+        continue
+      }
+      if (!real.startsWith(rootReal + path.sep)) return null // a symlink out of the plugin folder
+      if (fs.statSync(real).isFile()) return real
     }
     return null
   }
 
+  let host = '' // 127.0.0.1:<port>, set once listening
   const server = http.createServer(async (req, res) => {
     const headers = { 'content-security-policy': FRAME.guestCsp, 'cache-control': 'no-store' }
     const send = (status, body, type) => res.writeHead(status, type ? { ...headers, 'content-type': type } : headers).end(body)
     let urlPath = '/'
     try {
+      // Only the stage's own origin (a page that rebinds a DNS name to 127.0.0.1 sends another Host).
+      if (req.headers.host !== host) return send(421, 'wrong host')
       urlPath = decodeURIComponent(new URL(req.url, 'http://stage').pathname)
       if (urlPath === '/favicon.ico') return send(204)
       if (!current) return send(503, 'no capture running')
@@ -201,7 +241,8 @@ export async function createStage({ pluginDir, browser, log = () => {} }) {
     }
   })
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-  const origin = `http://127.0.0.1:${server.address().port}`
+  host = `127.0.0.1:${server.address().port}`
+  const origin = `http://${host}`
 
   /**
    * opts: { file, out, theme='dark', scale, width, height, act=[], waitFor, saveAs='saved', editor,
@@ -226,16 +267,38 @@ export async function createStage({ pluginDir, browser, log = () => {} }) {
       viewport: { width: opts.width, height: opts.height }, deviceScaleFactor: opts.scale, colorScheme: theme,
       locale: 'en-US', timezoneId: 'UTC', reducedMotion: 'reduce',
     })
-    const page = await context.newPage()
     const errors = []
     const warnings = []
+    // Nothing beyond the stage's server: every other origin is aborted, popups included.
+    const blocked = new Set()
+    await context.route('**/*', (route) => {
+      const url = route.request().url()
+      if (url.startsWith(origin + '/') || /^(data|blob):/.test(url)) return route.continue()
+      if (!blocked.has(url)) errors.push(`network: blocked ${url} (the stage reaches only its own 127.0.0.1 server)`)
+      blocked.add(url)
+      return route.abort('blockedbyclient')
+    })
+    const page = await context.newPage()
     page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`))
     page.on('console', (m) => {
       if (m.type() === 'error') errors.push(`console.error: ${m.text()}`)
       else if (m.type() === 'warning') warnings.push(`console.warn: ${m.text()}`)
     })
     page.on('requestfailed', (r) => {
-      if (!r.url().endsWith('/favicon.ico')) errors.push(`request failed: ${r.url()} (${r.failure()?.errorText})`)
+      if (!r.url().endsWith('/favicon.ico') && !blocked.has(r.url())) errors.push(`request failed: ${r.url()} (${r.failure()?.errorText})`)
+    })
+    page.on('popup', (p) => {
+      errors.push(`popup: the editor opened a window (${p.url()}); Orca denies popups`)
+      p.close().catch(() => {})
+    })
+    let leftTo = null
+    page.on('framenavigated', (f) => {
+      if (f !== page.mainFrame()) return
+      const u = f.url()
+      if (!u.startsWith(origin + guestPath) && !leftTo) {
+        leftTo = u
+        errors.push(`navigation: the page left the stage for ${u}`)
+      }
     })
     const timeout = opts.timeoutMs ?? 60_000
     try {
@@ -256,7 +319,8 @@ export async function createStage({ pluginDir, browser, log = () => {} }) {
       await page.waitForTimeout(opts.settleMs ?? 250)
       fs.mkdirSync(path.dirname(opts.out), { recursive: true })
       await page.screenshot({ path: opts.out, animations: 'allow', caret: 'hide' })
-      const state = await page.evaluate(() => ({ unknown: [...window.__stage.unknown], calls: window.__stage.calls.slice() }))
+      const state = await page.evaluate(() => (window.__stage ? { unknown: [...window.__stage.unknown], calls: window.__stage.calls.slice() } : null))
+      if (!state || leftTo) throw new Error(`the page navigated away from the stage${leftTo ? ` (to ${leftTo})` : ''}`)
       return {
         out: opts.out, width: opts.width, height: opts.height, scale: opts.scale, theme, errors, warnings,
         unknown: state.unknown, calls: state.calls, editor: editor.id, fileType: cfg.kind === 'bytes' ? cfg.fileType : undefined,
@@ -275,7 +339,7 @@ export async function createStage({ pluginDir, browser, log = () => {} }) {
     }
   }
 
-  return { capture, manifest, close: () => new Promise((resolve) => server.close(resolve)) }
+  return { capture, manifest, origin, close: () => new Promise((resolve) => server.close(resolve)) }
 }
 
 /** waitFor: "text", "/regex/flags", { text }, { regex }, { noText }. */
@@ -317,7 +381,7 @@ async function byText(page, text, exact, nth = 0) {
 
 /**
  * One act. `orca plugin shot` vocabulary: click, drag, key; stage additions: dblclick, clickText,
- * clickLabel, select, fill, hover, type, wheel, wait, waitForText, waitForNoText.
+ * clickLabel (both with `offset`), select, fill, hover, type, wheel, wait, waitForText, waitForNoText.
  */
 export async function runAct(page, a, timeout = 60_000) {
   const mods = (a.modifiers ?? []).map((m) => MODIFIER[m.toLowerCase()] ?? m)
@@ -330,12 +394,19 @@ export async function runAct(page, a, timeout = 60_000) {
     await page.mouse.move(x2, y2, { steps: 12 })
     await page.mouse.up()
   } else if (a.key) await page.keyboard.press([...mods, a.key].join('+'))
-  else if (a.clickText !== undefined) {
-    const el = await byText(page, a.clickText, a.exact ?? true, a.nth ?? 0)
-    await el.click({ modifiers: mods, clickCount: a.count ?? 1, timeout })
-  } else if (a.clickLabel !== undefined) {
-    const el = await byLabel(page, a.clickLabel)
-    await el.click({ modifiers: mods, timeout })
+  else if (a.clickText !== undefined || a.clickLabel !== undefined) {
+    const el = a.clickText !== undefined ? await byText(page, a.clickText, a.exact ?? true, a.nth ?? 0) : await byLabel(page, a.clickLabel)
+    if (a.offset) {
+      // A point beside the element (a chevron left of a label): offset from its left edge, mid-height.
+      await el.scrollIntoViewIfNeeded({ timeout })
+      const box = await el.boundingBox()
+      if (!box) throw new Error('the element has no box')
+      for (const m of mods) await page.keyboard.down(m)
+      await page.mouse.click(box.x + a.offset[0], box.y + box.height / 2 + a.offset[1], { clickCount: a.count ?? 1 })
+      for (const m of mods) await page.keyboard.up(m)
+    } else {
+      await el.click({ modifiers: mods, clickCount: a.count ?? 1, timeout })
+    }
   } else if (a.select !== undefined) {
     const el = await byLabel(page, a.select, 'select')
     const wanted = String(a.option)

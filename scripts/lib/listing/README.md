@@ -24,21 +24,23 @@ scripts/listing-image.sh shared-samples              # stub for now: prints what
 |---|---|
 | `--spec <file>` | The listing spec. Default: `<plugin>/tools/listing.json`. |
 | `--out-dir <dir>` | Where generated files go (`raw/`, `out/`, `sheet.png`, `sheet.html`, `report.json`). Default: `<plugin>/.orca/listing`, which every plugin git-ignores. |
-| `--dry-run` | Writes the final PNGs to `<out-dir>/out/` instead of the spec's `out` paths (`images/…`). The manifest is never written; `--write-manifest` writes `<out-dir>/orca-plugin.preview.json` instead. |
+| `--dry-run` | Writes the final PNGs to `<out-dir>/out/` instead of the spec's `out` paths (`images/…`). The manifest is never written; `--write-manifest` writes `<out-dir>/orca-plugin.preview.json` instead. Without `--dry-run`, an image whose build has an error still never replaces the one in `images/`: it goes to `<out-dir>/out/` too. |
 | `--only cover\|N` | Builds only the cover, or screenshot N (1-based). |
 | `--check` | Runs the checks below after the build. |
 | `--sheet` | Writes the contact sheet. |
-| `--write-manifest` | Rewrites `orca-plugin.json` `cover` as `{path, alt}` and `screenshots` as `[{path, alt}]`, in spec order. It does this only if the build and the checks passed. It lists images that nothing references any more but never deletes them. |
+| `--write-manifest` | Rewrites `orca-plugin.json` `cover` as `{path, alt}` and `screenshots` as `[{path, alt}]`, in spec order. It writes only if the build (and `--check`, when given) passed and every image the manifest would list exists and meets Orca's image rules, with or without `--check` and `--only`; otherwise it exits 1. With `--check`, the manifest rule judges the manifest about to be written. It lists images that nothing references any more but never deletes them. |
 | `--plain` | Screenshots become bare stage captures, with no headline or backdrop: 1067×667 CSS at scale 1.5, cropped to 1600×1000. This is a fallback in case a reviewer ever objects to composed screenshots. |
 | `--palette` | Palette PNG instead of lossless. Use it only after you have checked the glow crop on the sheet for banding. |
-| `--parity <file>` | Runs `orca plugin shot <dir> --editor <file> --width 960 --height 536` and puts the result next to the stage render at scale 1, as `<out-dir>/parity.png`. It opens a tab in Orca and can switch workspaces, so it asks in a terminal, or needs `LISTING_PARITY_OK=1` once you have agreed. It passes no `--theme` and no `--act`. |
+| `--parity <file>` | Runs `orca plugin shot <dir> --editor <file> --width 960 --height 536` and puts the result next to the stage render at scale 1, as `<out-dir>/parity.png`. The file is resolved once, against the plugin folder first and then the current folder, and both tools get the same absolute path. It opens a tab in Orca and can switch workspaces, so it asks in a terminal, or needs `LISTING_PARITY_OK=1` once you have agreed. It passes no `--theme` and no `--act`. |
 
 - **macOS only.** It uses `/Applications/Google Chrome.app` with `--mute-audio --hide-scrollbars
   --force-color-profile=srgb`, because fonts differ on other machines.
 - On first use, and whenever `package-lock.json` changes, it runs `npm ci` here (exact pins, see
   `package.json`).
-- **Exit codes:** 0 means every image was built and, with `--check`, passed. 1 means a build or
-  check failure; the reason is printed.
+- **Exit codes:** 0 means every image was built and, with `--check`, passed. 1 means a build,
+  check or manifest failure; the reason is printed.
+- **Tests:** `npm test` here (macOS with Google Chrome). They build a synthetic plugin in a temp
+  folder and cover `--write-manifest`, failed builds, `--parity` paths and the stage's fences.
 
 ## Workflow for a plugin
 
@@ -70,14 +72,15 @@ scroll with `wheel` by the measured distance.
   "icon": "images/icon.png",
   "cover": {
     "out": "images/cover.png",
-    "alt": "HAR Viewer with secrets masked: the request list and waterfall, a failed POST /v1/reports/export selected, its headers below.",
+    "alt": "HAR Viewer with known secrets masked: the request list and waterfall, with a failed POST /v1/reports/export selected.",
     "tagline": "Read network recordings, mask secrets, brief your agent.",
     "chips": [".har", ".har.zip", "Waterfall", "Masked secrets", "Agent digest"],
     "chipMain": 0,
     "stage": {
       "file": ".orca/listing/samples/dashboard.har", "theme": "dark", "scale": 2, "width": 480, "height": 800,
       "waitFor": { "text": "29 requests" },
-      "act": [{ "clickLabel": "Mask secrets" }, { "clickText": "/v1/reports/export" }],
+      "act": [{ "clickLabel": "Mask secrets" }, { "clickText": "/v1/reports/export" },
+              { "wheel": [200, 400, -1000] }, { "wheel": [200, 400, 220] }],
       "origin": { "x": 0, "y": 153 }
     }
   },
@@ -130,6 +133,7 @@ Each act is followed by a 150 ms pause. Coordinates are CSS px of the stage view
 | key | `{"key": "f", "modifiers": ["meta"]}` |
 | clickText | `{"clickText": "Add a book"}`. Exact and case-sensitive by default. `"exact": false` matches a substring, ignoring case. `"nth": 1` picks the second match. `"count": 2` double-clicks. |
 | clickLabel | `{"clickLabel": "Validation and lint results"}`. Matches `aria-label` or `title`, exactly first, then by prefix. Visible elements only. |
+| offset (with clickText or clickLabel) | `{"clickText": "shelf", "offset": [-10, 0]}` clicks 10 CSS px left of the matched element's left edge, at its mid-height: a chevron or icon beside a label that has no text or label of its own. |
 | select | `{"select": "<aria-label>", "option": "<label>"}`. Matches the option by label, then by prefix, then by value. **A native `<select>` popup is never captured**, so an image only ever shows a select closed, with its value. |
 | fill | `{"fill": "<aria-label>", "value": "…"}`. On range and number inputs it sets the value and fires `input` and `change`, which is what a drag ends with. |
 | hover, type, wheel | `{"hover": [x, y]}`, `{"type": "text"}`, `{"wheel": [x, y, dy]}` |
@@ -138,8 +142,14 @@ Each act is followed by a 150 ms pause. Coordinates are CSS px of the stage view
 - **Virtualised lists only render visible rows.** Reach deep entries by expanding, filtering or
   using the keyboard.
 - **Capture toasts quickly.** Capture within about 1 s of an act that shows a toast.
-- **Some trees toggle only on a chevron or a double-click.** API Spec's schema rows, for example,
-  open with `{"clickText": "shelf", "count": 2}`.
+- **Some trees toggle only on a chevron or a double-click.** Click the chevron with `offset`, as in
+  API Spec's `{"clickText": "shelf", "offset": [-10, 0]}`. A double-click on the text also selects
+  the word, and the selection ends up in the image.
+- **Rows sliced under a sticky header.** Clicking a row can leave a list scrolled partway into a
+  row. Scroll to the top, then by a whole number of rows: `{"wheel": [x, y, -1000]}`, then
+  `{"wheel": [x, y, 198]}` for 9 rows of 22 CSS px.
+- **Move the mouse off a control** you clicked if its hover style shows: `{"hover": [x, y]}` on
+  empty space.
 
 ## Checks (`--check`)
 
@@ -176,7 +186,8 @@ Each act is followed by a 150 ms pause. Coordinates are CSS px of the stage view
 
 **Stage**
 - No `pageerror`, `console.error` or failed request.
-- No access to an `orca.*` member the stage does not provide.
+- No access to an `orca.*` member the stage does not provide, and no `orca.on` for an event it does not send.
+- No request to any origin but the stage's own server, no cross-document navigation and no popup.
 
 **Manifest:** a manifest that still has `caption`/`theme`, or differs from the spec, is a warning
 in a dry run and an error otherwise.
@@ -202,20 +213,34 @@ Every thumbnail goes through a WebP q75 round trip, like orca.dev. The sheet sho
   values. The dark theme is `background #0a0a0a`, `card #171717`, `destructive #ff6568`. The light
   theme is `background #fff`, `destructive #e40014`.
 - **CSP.** Every response carries `PLUGIN_GUEST_CSP`, so anything Orca would block also fails here.
+- **Fences.** Orca's main process fences an isolated guest; the stage does the same, and each
+  attempt fails the build with the URL named:
+  - every request to another origin is aborted (also what CSP does not cover: top-level
+    navigation, popups and their loads);
+  - a cross-document navigation (a link with an `href`, `location = …`) is cancelled, so the page
+    stays, as in Orca; same-document navigation (`#hash`, `history.pushState`) works;
+  - `window.open` returns `null`, and a window opened anyway (`<a target="_blank">`) is closed.
+- **Server.** It listens on `127.0.0.1` and answers only `Host: 127.0.0.1:<port>`. It serves
+  only files whose real path is inside the plugin folder, so a symlink out of it gets a 404.
 - **Modules.** `.ts` is transpiled with esbuild, including workers created with `new URL(…, import.meta.url)`.
 - **`window.orca`** provides only what editors use today.
   - `api {major: 1, minor: 2}` and `locale 'en'`.
-  - The real frame also has `plugin`, `host`, `storage`, `settings` and `secrets`. Using any of
-    these fails the build, with the member named, until the stage supports it.
+  - The real frame also has `plugin`, `host`, `storage`, `settings`, `secrets` and
+    `document.session`. Using any of these fails the build, with the member named, until the
+    stage supports it.
   - `document.get` / `onDidChange` replay `{version: 1, readOnly, content}`.
     - A bytes editor gets `content: {kind: 'bytes', bytes}` and a `fileType` (the extension without its dot).
     - A text editor gets `{kind: 'text', text}` and no `fileType`.
   - `applyEdit` rejects with `not_permitted`.
-  - `on('theme')` sends `{colorScheme}` once.
+  - `on('theme')` sends `{colorScheme}` once. `orca.on` for any other event (workspace and agent
+    events, for example) is recorded and fails the build, because Orca would subscribe and deliver
+    events the stage never sends.
   - `files.saveAs` resolves `{status}` and `shell.openExternal` resolves
     `{opened: false, reason: 'cancelled'}`. Both reject with `not_permitted` without a user gesture,
     as Orca does.
-  - Access to any other member is recorded and fails the build.
+  - Access to any other member of `orca`, `orca.api`, `orca.document`, `orca.files` or
+    `orca.shell` is recorded and fails the build. Members of the objects these return (the
+    document payload, for example) are not watched.
 - **Browser context.** Each capture gets a fresh context: `locale en-US`, `timezoneId UTC`,
   `reducedMotion reduce`.
 

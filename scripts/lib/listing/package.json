@@ -5,6 +5,9 @@
   "description": "Builds the orca.dev listing images (cover and screenshots) of a plugin of this hub. Entry point: scripts/listing-image.sh.",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
   "engines": {
     "node": ">=22"
   },

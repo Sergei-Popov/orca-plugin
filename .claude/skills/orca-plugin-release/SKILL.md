@@ -92,7 +92,10 @@ House style, the `tools/listing.json` schema, the acts and the checks are in
   - 4–5 slides of 1600×1000 with a headline;
   - at most one light slide, and it comes last.
 - It checks sizes, alpha, bytes (≤ 400 KB each, ≤ 1.6 MB in total), alts, headlines, icons, stage
-  errors, and access to unknown `orca.*` members.
+  errors, and access to unknown `orca.*` members or events. Nothing on the stage reaches past
+  127.0.0.1: other origins, navigation and popups fail the build.
+- A failed image never replaces the one in `images/`, and `--write-manifest` writes only when every
+  listed image exists and is valid.
 
 **Workflow**
 1. Make the demo files in the plugin's `.orca/listing/samples/`, with the generator in its
@@ -101,8 +104,8 @@ House style, the `tools/listing.json` schema, the acts and the checks are in
 2. Write the spec, then run the `--dry-run` command above.
 3. Open every PNG in `.orca/listing/out/` and `sheet.png` with the Read tool. Fix the acts and
    `origin`. Copy the values the capture shows into the alts. Repeat until `check: passed`.
-4. Run `--write-manifest`. The manifest gets `{path, alt}` only, with no `caption` or `theme`.
-   Then run `orca plugin validate . --json`.
+4. Run the `--check --write-manifest` command above. The manifest gets `{path, alt}` only, with no
+   `caption` or `theme`. Then run `orca plugin validate . --json`.
 5. Delete the obsolete images the run lists, unless the README uses them.
 
 **Rules**
