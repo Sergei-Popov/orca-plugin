@@ -16,6 +16,12 @@ description: >-
   the release copies them into the catalog, and orca.dev shows them.
 - Both the plugin and the hub working trees are clean; `gh auth status` is logged in.
 - Pick the version (semver): breaking manifest/behaviour change → major, feature → minor, fix → patch.
+- **For anything that goes to orca.dev:** `scripts/directory-check.sh <name> --update` passes on the
+  plugin's `develop`. It runs the directory's own validator (Orca main, on the PC) and a self-scan for
+  what the private indexer rejects or holds: binary files, base64 binary blobs (tests included),
+  escape runs, `.wasm`, size, brand-led names, pricing words. See CLAUDE.md "Что задерживает плагин в
+  orca.dev". An update that adds file types, capabilities, commands, panels or events, or changes the
+  licence, is held as "update": batch such changes.
 
 ## Release
 
@@ -54,7 +60,17 @@ gh repo edit Sergei-Popov/orca-<name> --add-topic orca-plugin
 The listing appears within about an hour at `https://orca.dev/plugins/Sergei-Popov/orca-<name>`
 (the indexer runs every 30 minutes; until then the page says "Waiting for the indexer"). A version
 can be held "Under review" first; the status is in `status.json` of
-`stablyai/orca-community-plugins`.
+`stablyai/orca-community-plugins`:
+
+```sh
+gh api repos/stablyai/orca-community-plugins/contents/status.json -H "Accept: application/vnd.github.raw" \
+  | jq '.repos["sergei-popov/orca-<name>"]'
+```
+
+Check 30–60 minutes after adding the topic. `listed` is done. If it is `rejected` with a fixable reason
+(validation, binary-files, licence…), fix it and release a patch. If it is `under-review`, don't re-tag the
+same content: that only replaces the pending review. Holds after 2026-11-07 that were approved at all were
+approved within about a day. Past that, release a patch that removes the likely trigger (see CLAUDE.md).
 
 ## Listing images
 
