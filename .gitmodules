@@ -13,3 +13,8 @@
 	url = https://github.com/Sergei-Popov/orca-font-viewer.git
 	branch = develop
 	ignore = all
+[submodule "plugins/har-viewer"]
+	path = plugins/har-viewer
+	url = https://github.com/Sergei-Popov/orca-har-viewer.git
+	branch = develop
+	ignore = all
