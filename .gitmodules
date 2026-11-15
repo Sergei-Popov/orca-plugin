@@ -28,3 +28,8 @@
 	url = https://github.com/Sergei-Popov/orca-image-viewer.git
 	branch = develop
 	ignore = all
+[submodule "plugins/api-spec-viewer"]
+	path = plugins/api-spec-viewer
+	url = https://github.com/Sergei-Popov/orca-api-spec-viewer.git
+	branch = develop
+	ignore = all
