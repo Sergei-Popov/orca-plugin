@@ -13,9 +13,9 @@
       },
       "releases": [
         {
-          "version": "0.1.0",
-          "commit": "ed8eed1f1b9434eb56d35d96aa6530c511c9360b",
-          "contentHash": "200dd366f65b9d5cea153cd7a316c10452bcab5d7697e0cbdda0eba109e84a72",
+          "version": "0.1.1",
+          "commit": "a96fcf7d8ca3892730e64756025ad3dd86092e83",
+          "contentHash": "c690ceb6c30cfe4aa8c94fcea9f974c918d5f82eb98377d8a2a5c1200f2e0c74",
           "execution": "sandboxed-ui",
           "minimumOrca": "1.4.248",
           "name": "API Spec Viewer",
@@ -91,6 +91,37 @@
               }
             ]
           },
+          "license": "MIT AND ISC",
+          "repository": "https://github.com/Sergei-Popov/orca-api-spec-viewer",
+          "changelog": "Fixed\n\n- A title whose first sentence ends inside a closing quote or bracket, such as GitHub's\n  'see \"About teams.\"' webhooks, no longer gets a stray \"…\".\n- An operation page no longer prints its summary a second time under the title when the title\n  only dropped Markdown marks or joined lines.",
+          "updatedAt": "2026-11-16"
+        },
+        {
+          "version": "0.1.0",
+          "commit": "ed8eed1f1b9434eb56d35d96aa6530c511c9360b",
+          "contentHash": "200dd366f65b9d5cea153cd7a316c10452bcab5d7697e0cbdda0eba109e84a72",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "API Spec Viewer",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "API Spec Viewer",
+              "detail": ".openapi.yaml, .openapi.yml, .openapi.json, .swagger.yaml, .swagger.yml, .swagger.json, .oas.yaml, .oas.yml, .oas.json, .oas3.yaml, .oas3.yml, .oas3.json, .asyncapi.yaml, .asyncapi.yml, .asyncapi.json, .arazzo.yaml, .arazzo.yml, .arazzo.json, .overlay.yaml, .overlay.yml, .overlay.json, .yaml, .yml, .json, .jsonc, openapi.yaml, openapi.yml, openapi.json, swagger.yaml, swagger.yml, swagger.json, asyncapi.yaml, asyncapi.yml, asyncapi.json, arazzo.yaml, arazzo.yml, arazzo.json"
+            }
+          ],
+          "fileTypes": [
+            "yaml",
+            "yml",
+            "json",
+            "jsonc"
+          ],
+          "editorFileTypes": [
+            "yaml",
+            "yml",
+            "json",
+            "jsonc"
+          ],
           "license": "MIT AND ISC",
           "repository": "https://github.com/Sergei-Popov/orca-api-spec-viewer",
           "changelog": "Added\n\n- An API reference view for OpenAPI 3.0, 3.1 and 3.2, Swagger 2.0, AsyncAPI 2.x and 3.x,\n  Arazzo 1.0 and Overlay 1.0 documents in YAML, JSON and JSON with comments.\n- Opens openapi, swagger, asyncapi and arazzo .yaml/.yml/.json files and the\n  .openapi.*, .swagger.*, .oas.*, .oas3.*, .asyncapi.*, .arazzo.* and .overlay.*\n  suffixes by default, and is offered in the view toggle of every other YAML and JSON file.\n- A page for files that are not API descriptions, saying what they look like instead.\n- Overview, sidebar by tag with method badges, filter, back and forward, and full search\n  (⌘F / Ctrl+F).\n- Operation pages with parameters, request bodies, responses, headers, links, callbacks,\n  security and server overrides.\n- A schema tree with constraints, allOf merging, oneOf/anyOf tabs with the discriminator\n  mapping, and recursion shown as links.\n- Given and generated examples, and offline code samples for curl, fetch, Python requests\n  and HTTPie with copy buttons. Parameters are written as their style, explode or\n  collectionFormat says, OpenAPI 3.2 querystring parameters as their media type says, and\n  urlencoded and multipart bodies as their Encoding Object says. Values are quoted for the shell\n  and never read local files; a method that is not a valid HTTP method name gets no samples, and\n  values a shell command cannot carry safely (NUL, carriage return) leave out the curl and HTTPie\n  samples. GET and HEAD keep their method with a body, and headers the HTTP client sets itself\n  (Content-Length, Host and the like) are left out. Whatever a client cannot send as written is\n  left out of that sample, or sent as it can be, with a note saying so.\n- Component pages list where each component is used.\n- Lazy $ref and $dynamicRef resolution as JSON Schema 2020-12 says ($id and $anchor by\n  URI against OpenAPI 3.2's $self, $dynamicRef in its dynamic scope, and from OpenAPI 3.1 on\n  a reference's siblings applied), with cycle detection and a report for chains lon",
