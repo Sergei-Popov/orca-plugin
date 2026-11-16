@@ -820,9 +820,9 @@
       },
       "releases": [
         {
-          "version": "0.3.0",
-          "commit": "3fe63fd60f4583fb997d4fa630898e2bbb245b59",
-          "contentHash": "e51eef294e739765cf0383f2aafcc6f45579630458fe14b723c4bea3e2582105",
+          "version": "0.3.1",
+          "commit": "7218997dd856e480abd13a00d565b0f343254ada",
+          "contentHash": "1dda57d84748374d148cefb29540487888d95140b6ea05b3916c3b931c2f2f46",
           "execution": "sandboxed-ui",
           "minimumOrca": "1.4.248",
           "name": "Media Viewer",
@@ -892,48 +892,122 @@
             "icon": {
               "path": "assets/sergei-popov.media-viewer/images/icon.png",
               "alt": "Media Viewer",
-              "sha256": "bf2cc939d40f93771be6f0e87d5a3276d6ca9b4f3129380840eb520ab6689786",
+              "sha256": "76302f960f54746058816edc07f20f2acad213eb451b420f493c4750f4dfa348",
               "width": 256,
               "height": 256
             },
             "cover": {
               "path": "assets/sergei-popov.media-viewer/images/cover.png",
-              "alt": "Media Player in an Orca tab: a paused clip of a sunset over hills, with the seek bar, volume, speed, repeat, snapshot, fit, info and full screen controls below.",
-              "sha256": "98474359409cec11b85e0670cedfd9b75c9b4d145e332e33721588e7139ca0a9",
+              "alt": "A clip paused at 0:06 of 0:12 in Media Viewer, above the seek bar, frame steps, volume, speed, repeat, snapshot, fit, info.",
+              "sha256": "f8db67d6e138cd10d0f47dd2159b84b0872ce5b58f3308ac51619c1cbb38649d",
               "width": 1600,
               "height": 1000
             },
             "screenshots": [
               {
-                "path": "assets/sergei-popov.media-viewer/images/player-dark.png",
-                "alt": "An .mkv video paused at 0:12 in the Media Player tab with Orca's dark theme.",
-                "sha256": "e23dc1ebd7aadf127155f18c46072f5f2f54808d643e6cc887fd7ea5d82d0a7c",
-                "width": 1440,
-                "height": 900
+                "path": "assets/sergei-popov.media-viewer/images/shot-1-avi.png",
+                "alt": "An .avi converted to MP4 in the tab, offline, paused at 0:02; File info: 9.2 MB, 1280 × 720, 1:00, frame rate 24, .avi.",
+                "sha256": "93101f1896f11286baf18e1ce67201c1f9ab9f0c3829479af1ac7715d48142a0",
+                "width": 1600,
+                "height": 1000
               },
               {
-                "path": "assets/sergei-popov.media-viewer/images/player-light.png",
-                "alt": "The same video in the Media Player tab with Orca's light theme.",
-                "sha256": "55c2234aeecd0074049b20aca3cfab9cecfdcbf668cbb873acf26105c53c5bca",
-                "width": 1440,
-                "height": 900
+                "path": "assets/sergei-popov.media-viewer/images/shot-2-frame-step.png",
+                "alt": "Speed set to 0.5× and the clip paused at 0:04; the two buttons beside Play step it one frame back or forward.",
+                "sha256": "5940b01d1190407ade887a288d1ed243920e76d64bef569e080ca7e30b786303",
+                "width": 1600,
+                "height": 1000
               },
               {
-                "path": "assets/sergei-popov.media-viewer/images/info.png",
-                "alt": "The file info overlay over the video: file, size 1.9 MB, resolution 1920 × 1080, duration 0:30, frame rate, type .mkv.",
-                "sha256": "fc2d793314470202e053ba2f77e48b6687ebf8557e6bc70596ac806802f76c2f",
-                "width": 1440,
-                "height": 900
+                "path": "assets/sergei-popov.media-viewer/images/shot-3-snapshot.png",
+                "alt": "The camera button (S) saves the paused frame at 0:08 as a PNG file you name, and the player confirms: Frame saved.",
+                "sha256": "c89d9149d732e13e474e1c479ff525c0aa6f3d01e3413450ff1db5aa2d465aa6",
+                "width": 1600,
+                "height": 1000
               },
               {
-                "path": "assets/sergei-popov.media-viewer/images/audio.png",
-                "alt": "An audio file in the Media Player: a music note cover above the seek bar at 1:04 of 3:34.",
-                "sha256": "df7e5709721d73228b3371e3bd064e442b9952453ea465b2537c01706b9ed314",
-                "width": 1440,
-                "height": 900
+                "path": "assets/sergei-popov.media-viewer/images/shot-4-mp4.png",
+                "alt": "Open .mp4, .mov or .webm in Media Player for speed, frame steps and snapshots, at 0:11 of 0:12. Shown in Orca's light theme.",
+                "sha256": "e8bcffaa1e88b1476be1b269be69d233b6122cf671bea55729accaa3e96d00f6",
+                "width": 1600,
+                "height": 1000
               }
             ]
           },
+          "license": "MIT AND LGPL-2.1-or-later",
+          "repository": "https://github.com/Sergei-Popov/orca-media-viewer",
+          "changelog": "Changed\n\n- Listing images and description: a fuchsia icon, and a cover and four screenshots in the hub's house style, rendered from a generated demo clip in a headless stage (tools/listing.json, tools/make-listing-samples.sh). The manifest's images carry only a path and an alt, and the description now starts with what the plugin is: a media player.\n\nFixed\n\n- File info no longer shows a made-up file name (\"media.mkv\"): Orca never tells an editor the file's name, so the overlay lists size, resolution, duration, frame rate and type.\n- AVI files at 23.976, 29.97, 59.94, 12.5 or another fractional frame rate convert and play; they failed with \"The AVI file could not be converted\".\n- File info shows the right frame rate: the AVI decoder's exact rate, otherwise a rate measured over at least a second of playback at 1× and named by the common rate it is (30, not 29.97, for a 30 fps MKV). It shows \"—\" until then, and audio files have no resolution or frame rate rows.\n- Frame steps move exactly one frame on a freshly opened, paused clip, at 24, 25, 30 or 60 fps and with Matroska's millisecond timestamps: they use the container's frame duration or the AVI rate and step from the frame on screen, so the first step after pausing playback no longer repeats that frame.\n- A video file whose video codec Orca's Chromium does not decode (MPEG-2, Xvid in MKV, ProRes) no longer passes for an audio file: it plays its sound with a notice that names the video codec. A file whose header cannot be read to its end, such as a damaged one, shows the audio cover as before.\n- Sound that cannot play is no longer dropped silently: an MKV, WebM or MP4 whose sound is AC3, E-AC3, DTS or TrueHD (in MP4 and MOV, the enabled sound track, which Chromium plays even when a disabled AAC alternate follows), and an AVI with sound the decoder lacks (WMA, DTS, FLAC, G.711), plays the picture with a notice that names the sound codec. An AVI with only such sound names it in the error. When an AVI's sound is in a cod",
+          "updatedAt": "2026-11-16"
+        },
+        {
+          "version": "0.3.0",
+          "commit": "3fe63fd60f4583fb997d4fa630898e2bbb245b59",
+          "contentHash": "e51eef294e739765cf0383f2aafcc6f45579630458fe14b723c4bea3e2582105",
+          "execution": "sandboxed-ui",
+          "minimumOrca": "1.4.248",
+          "name": "Media Viewer",
+          "contributes": [
+            {
+              "kind": "iconThemes",
+              "name": "Media Viewer"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mkv, .avi"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mka, .weba"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp4, .m4v, .mov, .webm"
+            },
+            {
+              "kind": "customEditors",
+              "name": "Media Player",
+              "detail": ".mp3, .wav, .m4a, .aac, .ogg, .oga, .flac, .opus"
+            }
+          ],
+          "fileTypes": [
+            "mkv",
+            "avi",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
+          "editorFileTypes": [
+            "mkv",
+            "avi",
+            "mka",
+            "weba",
+            "mp4",
+            "m4v",
+            "mov",
+            "webm",
+            "mp3",
+            "wav",
+            "m4a",
+            "aac",
+            "ogg",
+            "oga",
+            "flac",
+            "opus"
+          ],
           "license": "MIT AND LGPL-2.1-or-later",
           "repository": "https://github.com/Sergei-Popov/orca-media-viewer",
           "changelog": "Added\n\n- .avi opens in Media Player instead of \"Binary file — cannot display\". The tab converts it to MP4 offline when it opens (FFmpeg in WebAssembly decodes, the browser's WebCodecs encoders write H.264 or VP9 with Opus or AAC) and shows the progress. Video: Xvid, DivX 3/4/5, MPEG-4, H.264, H.263, MJPEG, MPEG-1/2; sound: MP3, MP2, AC3, AAC, PCM, ADPCM, surround mixed down to stereo. Unsupported codecs and damaged files get a clear message.\n\nChanged\n\n- License is now MIT AND LGPL-2.1-or-later: the bundled FFmpeg decoder (vendor/ffmpeg) is LGPL; its source and build script are in wasm/.",
@@ -1128,7 +1202,7 @@
           "updatedAt": "2026-11-14"
         }
       ],
-      "description": "Video and audio in Orca's editor tabs: plays .mkv, .avi, .mka and .weba, which Orca cannot show (AVI is converted offline in the tab), and adds a full player view to .mp4, .mov, .webm, .mp3, .flac and other media. Speed, frame stepping, repeat, frame snapshots, file info and keyboard shortcuts.",
+      "description": "A media player in Orca's editor tabs: plays .mkv, .avi, .mka and .weba, which Orca cannot show (AVI is converted offline in the tab), and a full player view for .mp4, .mov, .webm, .mp3, .flac and more. Speed, frame stepping, repeat, frame snapshots, file info, shortcuts, media file icons.",
       "categories": [
         "media",
         "viewers"
