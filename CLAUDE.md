@@ -129,3 +129,4 @@ orca plugin shot local.<id> --editor <file>   # PNG редактора — см�
 | `har-viewer`   | `Sergei-Popov/orca-har-viewer`      | Записи сети `.har`/`.har.zip`: список запросов и водопад, маскирование секретов, выгрузка для агента |
 | `class-viewer` | `Sergei-Popov/orca-class-viewer`    | Файлы `.class` и архивы `.jar`/`.jmod`: объявления, байткод как javap, структура, пул констант |
 | `image-viewer` | `Sergei-Popov/orca-image-viewer`    | Картинки, которые Orca не показывает: TIFF, HEIC, PSD, EXR, HDR, TGA, DDS, QOI, ICNS, превью RAW; страницы, слои, экспозиция, EXIF |
+| `api-spec-viewer` | `Sergei-Popov/orca-api-spec-viewer` | OpenAPI 3.x, Swagger 2.0, AsyncAPI 2/3, Arazzo, Overlay: операции, схемы, примеры кода, поиск, проблемы |

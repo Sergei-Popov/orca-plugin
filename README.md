@@ -10,6 +10,7 @@ Plugins for [Orca](https://orca.dev), and the Orca catalog that lists them.
 | [HAR Viewer](https://github.com/Sergei-Popov/orca-har-viewer)            | `.har` and `.har.zip` network recordings: request list and waterfall, known secrets masked, a digest for your agent. |
 | [Class File Viewer](https://github.com/Sergei-Popov/orca-class-viewer)  | Compiled `.class` files and `.jar`/`.jmod` archives: declarations, bytecode like javap, structure, constant pool. |
 | [Image Viewer](https://github.com/Sergei-Popov/orca-image-viewer)        | Image formats Orca can't show: TIFF, HEIC, PSD, EXR, HDR, TGA, DDS, QOI, ICNS, RAW previews; pages, layers, exposure, EXIF. |
+| [API Spec Viewer](https://github.com/Sergei-Popov/orca-api-spec-viewer) | OpenAPI 3.x, Swagger 2.0, AsyncAPI 2/3, Arazzo and Overlay files: operations, schemas, code samples, search, problems. |
 
 ## Install
 
