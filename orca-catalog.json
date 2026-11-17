@@ -1238,6 +1238,97 @@
         "media",
         "viewers"
       ]
+    },
+    {
+      "id": "sergei-popov.project-workflows",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-project-workflows.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "94e3ebea7c9dfd4a412728345a72cfad10a0d149",
+          "contentHash": "cda7a7c86ee9985a61cd2652139db2baec101b7fda8e6c30fde5a1363c7b166b",
+          "execution": "trusted-worker",
+          "minimumOrca": "1.4.248",
+          "name": "Project Workflows",
+          "contributes": [
+            {
+              "kind": "panels",
+              "name": "Project Workflows"
+            }
+          ],
+          "capabilities": [
+            "workspace:read",
+            "workspace:write",
+            "agent:launch"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.project-workflows/images/icon.png",
+              "alt": "Project Workflows",
+              "sha256": "0e2f5a52d18cb6ab3aedfffbf0e1ec9b79618bfed8d7509d6e4c68efe90cbdcb",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.project-workflows/images/cover.png",
+              "alt": "OpenSpec shows add-filtered-csv-export with 1 of 3 tasks complete in the Reports workspace.",
+              "sha256": "d130867a4bf57e9513cb4d779cac22981ed0aeeb56b11ab9d8e8e60c735f7959",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.project-workflows/images/shot-1-openspec-validation.png",
+                "alt": "OpenSpec validation passed for add-filtered-csv-export. Its proposal, specification, design and tasks are available to open.",
+                "sha256": "97026f96562da587e6a587f74edfdc527f36d584b14a8b9ab0277ec493be292e",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.project-workflows/images/shot-2-planning-blockers.png",
+                "alt": "For pending-design, the proposal is ready to create. Specifications, Design and Tasks are blocked.",
+                "sha256": "1860c958e801da470931bd78d7b00d02fc7a7f1e64c4c6cb7aceeaf26c3031b4",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.project-workflows/images/shot-3-sprint-tracking.png",
+                "alt": "Three BMAD sprint stories show In review, Ready for development and Done. The selected story tracks report history.",
+                "sha256": "0628d2156d2042aea3b99bccdd701a6030bff5994654e689af3ba59210d01f89",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.project-workflows/images/shot-4-story-handoff.png",
+                "alt": "Continue “Keep the active report filters” with Claude Code. Its SPEC.md, stories.yaml and story file are linked.",
+                "sha256": "8a25358d3083006a5a8b26806fd8d65ea29a6a6618ad8a0dd920bfee86d69817",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.project-workflows/images/shot-5-quick-build.png",
+                "alt": "A BMAD Build request asks Codex to keep the date filter when exporting reports to CSV. Shown in Orca's light theme.",
+                "sha256": "2914663eb7ab95be8093df7e685bd9838c33f56e38e593f47c918e3329ab7abc",
+                "width": 1600,
+                "height": 1000
+              }
+            ]
+          },
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-project-workflows",
+          "changelog": "Added\n\n- Browse local OpenSpec changes, follow task progress, open planning artifacts and run structural validation from Orca’s sidebar.\n- Hand an OpenSpec change to Codex or Claude Code in its worktree for implementation or verification.\n- Browse BMAD Method 6.12.4 BMM specification and sprint stories. Continue a story or start a small change with the installed Build skill.",
+          "updatedAt": "2026-11-17"
+        }
+      ],
+      "description": "Browse OpenSpec changes and BMAD stories, open their project files, validate changes and hand work to Codex or Claude Code in the selected local Orca workspace.",
+      "categories": [
+        "developer",
+        "workflows"
+      ]
     }
   ]
 }
