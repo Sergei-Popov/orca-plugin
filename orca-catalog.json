@@ -23,7 +23,7 @@
             {
               "kind": "customEditors",
               "name": "API Spec Viewer",
-              "detail": ".openapi.yaml, .openapi.yml, .openapi.json, .swagger.yaml, .swagger.yml, .swagger.json, .oas.yaml, .oas.yml, .oas.json, .oas3.yaml, .oas3.yml, .oas3.json, .asyncapi.yaml, .asyncapi.yml, .asyncapi.json, .arazzo.yaml, .arazzo.yml, .arazzo.json, .overlay.yaml, .overlay.yml, .overlay.json, .yaml, .yml, .json, .jsonc, openapi.yaml, openapi.yml, openapi.json, swagger.yaml, swagger.yml, swagger.json, asyncapi.yaml, asyncapi.yml, asyncapi.json, arazzo.yaml, arazzo.yml, arazzo.json"
+              "detail": ".yaml, .yml, .json, .jsonc (OpenAPI, Swagger, AsyncAPI, Arazzo, Overlay)"
             }
           ],
           "fileTypes": [
@@ -107,7 +107,7 @@
             {
               "kind": "customEditors",
               "name": "API Spec Viewer",
-              "detail": ".openapi.yaml, .openapi.yml, .openapi.json, .swagger.yaml, .swagger.yml, .swagger.json, .oas.yaml, .oas.yml, .oas.json, .oas3.yaml, .oas3.yml, .oas3.json, .asyncapi.yaml, .asyncapi.yml, .asyncapi.json, .arazzo.yaml, .arazzo.yml, .arazzo.json, .overlay.yaml, .overlay.yml, .overlay.json, .yaml, .yml, .json, .jsonc, openapi.yaml, openapi.yml, openapi.json, swagger.yaml, swagger.yml, swagger.json, asyncapi.yaml, asyncapi.yml, asyncapi.json, arazzo.yaml, arazzo.yml, arazzo.json"
+              "detail": ".yaml, .yml, .json, .jsonc (OpenAPI, Swagger, AsyncAPI, Arazzo, Overlay)"
             }
           ],
           "fileTypes": [
