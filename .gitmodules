@@ -33,3 +33,8 @@
 	url = https://github.com/Sergei-Popov/orca-api-spec-viewer.git
 	branch = develop
 	ignore = all
+[submodule "plugins/project-workflows"]
+	path = plugins/project-workflows
+	url = https://github.com/Sergei-Popov/orca-project-workflows.git
+	branch = develop
+	ignore = all
