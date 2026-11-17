@@ -1,12 +1,13 @@
 # Listing images
 
 `scripts/listing-image.sh` builds a plugin's listing images, a cover and 4–5 screenshots, each
-1600×1000 PNG, in the hub's house style. It renders the plugin's **real editor UI** on a local
-stage in headless Google Chrome. Orca's window is never driven or captured; the only exception is
-`--parity`, which needs your OK first.
+1600×1000 PNG, in the hub's house style. Headless Chrome renders the plugin's custom editor
+or replays its native components panel. Both feed the same templates, checks and contact sheet.
+Only the optional editor `--parity` comparison uses Orca's window.
 
 ```
-plugin folder ──stage.mjs──> raw capture (real UI, Orca 1.4.258 tokens and CSP)
+editor + demo file ──stage.mjs──> raw capture
+components panel + SDK scenario ──panel-stage.mjs──> raw capture
                ──compose.mjs─> template (cover.html / shot.html + listing.css, Inter) ──> 1600×1000 PNG
                ──check.mjs──> checks + contact sheet (.orca/listing/sheet.png)
 ```
@@ -39,14 +40,16 @@ scripts/listing-image.sh shared-samples              # stub for now: prints what
   `package.json`).
 - **Exit codes:** 0 means every image was built and, with `--check`, passed. 1 means a build,
   check or manifest failure; the reason is printed.
-- **Tests:** `npm test` here (macOS with Google Chrome). They build a synthetic plugin in a temp
-  folder and cover `--write-manifest`, failed builds, `--parity` paths and the stage's fences.
+- **Tests:** `npm test` here (macOS with Google Chrome). Temporary plugins cover editor captures,
+  manifest writes and failed builds. The native replay test also uses the installed Orca app
+  and checks a worker response, an IconButton and a panel state reached by typing and pressing.
 
 ## Workflow for a plugin
 
 1. In the plugin, branch `feature/listing-images` from `develop`, after any open review branch is merged.
-2. Make the demo files under `.orca/listing/samples/`. Use the plugin's generator in `tools/`, or
-   committed test files, or `scripts/listing-image.sh shared-samples` once that is built.
+2. For an editor, prepare demo files under `.orca/listing/samples/` or use committed test files.
+   For a components panel, prepare synthetic SDK scenarios alongside its entry and check them
+   with `orca plugin check . --json`. See “Native components panels” below.
 3. Write `tools/listing.json` (schema below).
 4. Run `scripts/listing-image.sh <name> --dry-run --check --sheet`.
 5. Open every PNG in `.orca/listing/out/` and `.orca/listing/sheet.png` with the Read tool.
@@ -98,7 +101,7 @@ scroll with `wheel` by the measured distance.
 | Field | Meaning |
 |---|---|
 | `accent` | The plugin's accent colour (see the table under "Colour accents"). |
-| `title` | `[distinctive word, "Viewer"]`. Line 1 must fit the 600 px column. |
+| `title` | The display name on up to two lines, e.g. `["HAR", "Viewer"]` or `["Test", "Results"]`. Each line must fit the 600 px column. |
 | `budget` | Optional. A documented exception to the image budget; see "Budget exception" under Checks. |
 | `icon` | The plugin icon, used on the cover and the slides. Default: `images/icon.png`. |
 | `cover.tagline` / `cover.chips` / `cover.chipMain` | At most 60 characters and 2 lines; at most 5 chips of ≤ 16 characters each; the index of the filled main chip (default 0). |
@@ -111,19 +114,58 @@ scroll with `wheel` by the measured distance.
 
 | Field | Default | Meaning |
 |---|---|---|
-| `file` | required | The demo file, relative to the plugin folder. |
+| `file` | editors | The demo file, relative to the plugin folder. |
+| `panel`, `scenario` | components panels | The manifest panel id and a named SDK scenario. |
 | `theme` | `dark` | `dark` or `light`. Only the last slide may be light. |
 | `scale` | cover 2 (min 1.6), slides 1.5 | Device scale factor. |
 | `width` × `height` | slides 960×536 | CSS viewport. On the cover, from `origin` the viewport must reach at least the window: 440 CSS at scale 2, 550 at 1.6. |
 | `origin` | `{x: 0, y: 0}` | The CSS point of the UI that lands at the panel's top-left corner. |
-| `waitFor` | none | `{"text": "…"}`, `{"regex": "…"}` or `{"noText": "Loading…"}`. Timeout 60 s. |
+| `waitFor` | none | `{"text": "…"}`, `{"regex": "…"}` or `{"noText": "Loading…"}`. Editors wait before acts (60 s), panels check the resulting frame after acts (10 s). |
 | `act` | `[]` | Input steps (below). |
 | `editor` | longest matching extension | A `customEditors` id, when the extension is ambiguous. |
 | `saveAs` | `saved` | What `orca.files.saveAs` resolves: `saved` or `cancelled`. |
 | `readOnly` | `false` | The document's `readOnly`. Orca passes the file's real state. |
-| `settleMs` | 250 | The pause after the last act, before capture. |
+| `settleMs` | editors 250, panels 0 | Extra pause before capture, in ms. |
 
-### Acts: input only, never DOM edits
+### Native components panels
+
+For a contribution with `ui: "components"`, use its `panel` id and the `scenario` name from
+the panel's `<entry>.check.ts`. Each capture mounts the real panel and its worker on a fresh
+Orca SDK mock host. Use fictional storage, host answers, persisted atoms and events as you
+would for `orca plugin check`. The stage theme applies to the mount and the replay.
+
+For example, the Orca `worker-panel` scaffold's `src/panel.check.ts` contains a `counted`
+scenario with `storage: { total: 41 }`. For a scaffold whose panel id is `counter`, the
+following slide stage presses its existing button and checks the resulting total.
+
+```json
+{
+  "panel": "counter",
+  "scenario": "counted",
+  "act": [{ "press": { "text": "Add 1" } }],
+  "waitFor": { "text": "42" }
+}
+```
+
+The SDK awaits each action. Use the JSON vocabulary of `orca plugin shot --act`, including
+`{"type":{"label":"Search"},"text":"checkout","replace":true}`, `press`, `toggle`, `select`,
+`slide`, and the table and tree actions. Capture a different state by changing the scenario
+or its inputs. The host's replay initializes control values from the resulting component props
+and shows placeholders for panel images, just like `orca plugin shot --scenario`.
+
+Run from the hub with `scripts/listing-image.sh <plugin-dir> --dry-run --check --sheet`.
+Review `.orca/listing/out/`, `sheet.png` and the per-frame panel, scenario, SDK calls and Orca
+version in `report.json`. To write the final images and manifest, use
+`scripts/listing-image.sh <plugin-dir> --check --write-manifest`.
+
+The SDK runs trusted plugin code locally in Node, as `orca plugin check` does. A fresh
+headless browser context paints the SDK's drawn tree using the installed Orca app's
+`PluginShotReplaySurface`, TooltipProvider, fonts and styles. The capture uses local assets
+and keeps the desktop session available. Tested with Orca 1.4.258 at `/Applications/Orca.app`.
+Set `ORCA_APP_PATH` to use an app in another location. Rerun the native replay test when
+updating Orca, since the renderer modules ship inside the app.
+
+### Custom editor acts
 
 Each act is followed by a 150 ms pause. Coordinates are CSS px of the stage viewport.
 
@@ -214,7 +256,7 @@ Every thumbnail goes through a WebP q75 round trip, like orca.dev. The sheet sho
 - the family row (every hub plugin's current `images/cover.png`);
 - texts and findings.
 
-## What the stage reproduces (Orca 1.4.258, `orca-frame.json`)
+## What the custom editor stage reproduces (Orca 1.4.258, `orca-frame.json`)
 
 - **Guest document.** Orca's `buildPluginGuestShellHtml`: `<!doctype html><html class="dark|light">`,
   then `<style id="orca-design-tokens">:root{--orca-…}</style>`, then the frame-API stand-in, then
@@ -331,7 +373,8 @@ changed, by up to 35 levels. Use `--palette` for that on purpose.
 **Left column** (x 104–704, top at y 240)
 - **Icon:** 112 px, radius 26, with a soft glow of the accent at 45%.
 - **Title, line 1:** the distinctive word, in `#f5f5f7`.
-- **Title, line 2:** **"Viewer"**, in `color-mix(accent 35%, #8e8e96)`, weight 640. This is the family signature.
+- **Title, line 2:** the rest of the display name (for example, “Viewer” or “Results”),
+  in `color-mix(accent 35%, #8e8e96)`, weight 640.
 - **Title type:** Inter, 112 px, weight 760, line height .98, letter spacing −0.035em. The first word must fit the 600 px column.
 - **Tagline:** 38 px with line height 1.28, weight 420, 78% white. At most 60 characters and 2 lines.
 - **Chips:**

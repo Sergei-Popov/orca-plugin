@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds a plugin's listing images (cover + screenshots, 1600x1000 PNG) in the hub's house style
-# from the real editor UI, rendered by a local stage in headless Google Chrome (never Orca's window).
+# from the real editor or components panel in headless Google Chrome (without opening Orca's window).
 #
 #   scripts/listing-image.sh <name|dir> [--only cover|N] [--check] [--sheet] [--write-manifest]
 #                            [--plain] [--palette] [--spec <listing.json>] [--out-dir <dir>] [--dry-run]

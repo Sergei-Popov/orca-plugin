@@ -1,5 +1,6 @@
 // Builds a plugin's listing images from its listing spec (tools/listing.json): stage capture of
-// the real editor -> house-style template -> 1600x1000 PNG. Entry point: scripts/listing-image.sh.
+// the real editor or components panel -> house-style template -> 1600x1000 PNG.
+// Entry point: scripts/listing-image.sh.
 //
 //   node compose.mjs --plugin <dir> [--spec <listing.json>] [--work <dir>] [--dry-run]
 //                    [--only cover|N] [--check] [--sheet] [--write-manifest] [--plain] [--palette]
@@ -18,6 +19,7 @@ import { parseArgs } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import { createStage, launchChrome } from './stage.mjs'
+import { capturePanel } from './panel-stage.mjs'
 import { budgetOf, budgetProblems, checkListing, listedImageProblems, planManifest, writeParity, writeSheet } from './check.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -111,7 +113,7 @@ fs.mkdirSync(path.join(work, 'out'), { recursive: true })
 const results = []
 let buildFailed = false
 const browser = await launchChrome()
-const stage = await createStage({ pluginDir, browser, log })
+const stage = selected.some((t) => t.entry.stage.file) ? await createStage({ pluginDir, browser, log }) : null
 try {
   for (const t of selected) {
     const r = { id: t.id, kind: t.kind, entry: t.entry, out: outPathFor(t.entry), written: null, errors: [], warnings: [] }
@@ -131,7 +133,7 @@ try {
     for (const w of r.warnings) log(`       warn: ${w}`)
   }
 } finally {
-  await stage.close()
+  await stage?.close()
 }
 
 // ── Check, sheet, manifest ──
@@ -210,10 +212,10 @@ async function buildOne(t, r) {
   const left = Math.round(origin.x * scale)
   const top = Math.round(origin.y * scale)
 
-  const cap = await stage.capture({
-    file: st.file, out: raw, theme: st.theme ?? 'dark', scale, width, height, act: st.act ?? [],
-    waitFor: st.waitFor, saveAs: st.saveAs, editor: st.editor, readOnly: st.readOnly, settleMs: st.settleMs,
-  })
+  const capture = { out: raw, theme: st.theme ?? 'dark', scale, width, height, act: st.act ?? [], waitFor: st.waitFor, settleMs: st.settleMs }
+  const cap = st.panel
+    ? await capturePanel({ pluginDir, manifest, browser }, { ...capture, panel: st.panel, scenario: st.scenario })
+    : await stage.capture({ ...capture, file: st.file, editor: st.editor, saveAs: st.saveAs, readOnly: st.readOnly })
   r.stage = cap
   r.ui = { width: win.w, height: win.h, scale, viewport: `${width}x${height}`, origin }
   for (const m of cap.errors) r.errors.push(`stage: ${m}`)
@@ -394,7 +396,7 @@ function validateSpec(s) {
   const e = []
   const str = (v) => typeof v === 'string' && v.length > 0
   if (!/^#[0-9a-fA-F]{6}$/.test(s.accent ?? '')) e.push('accent must be a #rrggbb colour')
-  if (!Array.isArray(s.title) || !str(s.title[0])) e.push('title must be ["<word>", "Viewer"]')
+  if (!Array.isArray(s.title) || !str(s.title[0])) e.push('title must be an array of display name lines')
   if (!s.cover || typeof s.cover !== 'object') e.push('cover is missing')
   if (!Array.isArray(s.screenshots)) e.push('screenshots must be an array (may be empty)')
   const entries = [['cover', s.cover], ...(s.screenshots ?? []).map((x, i) => [`screenshots[${i}]`, x])]
@@ -403,11 +405,24 @@ function validateSpec(s) {
     if (!x) continue
     if (!str(x.out) || !/\.png$/.test(x.out)) e.push(`${name}.out must be a .png path`)
     if (!str(x.alt)) e.push(`${name}.alt is missing`)
-    if (!x.stage || !str(x.stage.file)) e.push(`${name}.stage.file is missing`)
+    const st = x.stage ?? {}
+    if (Object.hasOwn(st, 'panel') || Object.hasOwn(st, 'scenario')) {
+      if (!str(st.panel) || !str(st.scenario)) e.push(`${name}.stage needs both panel and scenario`)
+      for (const key of ['file', 'editor', 'saveAs', 'readOnly']) {
+        if (Object.hasOwn(st, key)) e.push(`${name}.stage.${key} is for custom editors and cannot be used with a panel`)
+      }
+      if (st.theme !== undefined && !['dark', 'light'].includes(st.theme)) e.push(`${name}.stage.theme must be dark or light`)
+    } else if (!str(st.file)) e.push(`${name}.stage needs an editor file or a panel and scenario`)
     if ('caption' in x || 'theme' in x) e.push(`${name}: no caption or theme fields (the stage's theme goes in stage.theme)`)
     if (name === 'cover' && !str(x.tagline)) e.push('cover.tagline is missing')
     if (name !== 'cover' && !str(x.headline)) e.push(`${name}.headline is missing`)
-    for (const [i, a] of (x.stage?.act ?? []).entries()) if (typeof a !== 'object' || !a) e.push(`${name}.stage.act[${i}] must be an object`)
+    if (st.act != null && !Array.isArray(st.act)) {
+      e.push(`${name}.stage.act must be an array`)
+    } else {
+      for (const [i, a] of (st.act ?? []).entries()) {
+        if (typeof a !== 'object' || !a) e.push(`${name}.stage.act[${i}] must be an object`)
+      }
+    }
   }
   return e
 }
