@@ -12,6 +12,7 @@ Plugins for [Orca](https://orca.dev), and the Orca catalog that lists them.
 | [Image Viewer](https://github.com/Sergei-Popov/orca-image-viewer)        | Image formats Orca can't show: TIFF, HEIC, PSD, EXR, HDR, TGA, DDS, QOI, ICNS, RAW previews; pages, layers, exposure, EXIF. |
 | [API Spec Viewer](https://github.com/Sergei-Popov/orca-api-spec-viewer) | OpenAPI 3.x, Swagger 2.0, AsyncAPI 2/3, Arazzo and Overlay files: operations, schemas, code samples, search, problems. |
 | [Project Workflows](https://github.com/Sergei-Popov/orca-project-workflows) | Validate OpenSpec changes, track BMAD stories, and hand work to Codex or Claude Code in the selected worktree. |
+| [Test Results](https://github.com/Sergei-Popov/orca-test-results) | Inspect failures in local JUnit XML reports, open the test source, and prepare an editable summary for a coding agent. |
 
 ## Install
 
