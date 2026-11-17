@@ -38,3 +38,8 @@
 	url = https://github.com/Sergei-Popov/orca-project-workflows.git
 	branch = develop
 	ignore = all
+[submodule "plugins/test-results"]
+	path = plugins/test-results
+	url = https://github.com/Sergei-Popov/orca-test-results.git
+	branch = develop
+	ignore = all
