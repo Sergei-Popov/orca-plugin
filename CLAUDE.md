@@ -130,3 +130,4 @@ orca plugin shot local.<id> --editor <file>   # PNG редактора — см�
 | `class-viewer` | `Sergei-Popov/orca-class-viewer`    | Файлы `.class` и архивы `.jar`/`.jmod`: объявления, байткод как javap, структура, пул констант |
 | `image-viewer` | `Sergei-Popov/orca-image-viewer`    | Картинки, которые Orca не показывает: TIFF, HEIC, PSD, EXR, HDR, TGA, DDS, QOI, ICNS, превью RAW; страницы, слои, экспозиция, EXIF |
 | `api-spec-viewer` | `Sergei-Popov/orca-api-spec-viewer` | OpenAPI 3.x, Swagger 2.0, AsyncAPI 2/3, Arazzo, Overlay: операции, схемы, примеры кода, поиск, проблемы |
+| `project-workflows` | `Sergei-Popov/orca-project-workflows` | Проверяет изменения OpenSpec, показывает статус историй BMAD и передаёт задачи Codex или Claude Code в выбранном рабочем дереве. |
