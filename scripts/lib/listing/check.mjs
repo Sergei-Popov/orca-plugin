@@ -377,7 +377,10 @@ export async function writeSheet({ browser, pluginDir, spec, manifest, results, 
     `cover alt (${Array.from(spec.cover.alt).length}): ${spec.cover.alt}`,
     `tagline (${Array.from(spec.cover.tagline ?? '').length}): ${spec.cover.tagline}`,
     `chips: ${(spec.cover.chips ?? []).join(' · ')}`,
-    ...results.flatMap((r) => r.stage ? [`${r.id}: stage ${r.ui?.viewport} @${r.ui?.scale}x, editor ${r.stage.editor}${r.stage.calls.length ? ', calls ' + r.stage.calls.join(', ') : ''}`] : []),
+    ...results.filter((r) => r.stage).map((r) => {
+      const source = r.stage.panel ? `panel ${r.stage.panel}, scenario ${r.stage.scenario}, Orca ${r.stage.orcaVersion}` : `editor ${r.stage.editor}`
+      return `${r.id}: stage ${r.ui.viewport} @${r.ui.scale}x, ${source}${r.stage.calls.length ? ', calls ' + r.stage.calls.join(', ') : ''}`
+    }),
     ...results.flatMap((r) => r.warnings.map((w) => `warn ${r.id}: ${w}`)),
     ...(check ? [...check.facts, ...check.warnings.map((w) => `warn: ${w}`), ...check.errors.map((e) => `ERROR: ${e}`)] : []),
   ]

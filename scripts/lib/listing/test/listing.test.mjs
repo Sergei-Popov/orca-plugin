@@ -82,6 +82,62 @@ function run(args, opts = {}) {
 }
 
 describe('listing-image.sh', { skip }, () => {
+  test('replays a real SDK panel with its worker, tooltip provider and input before composing', {
+    skip: !fs.existsSync(process.env.ORCA_APP_PATH ?? '/Applications/Orca.app') && 'needs the installed Orca replay renderer',
+  }, async () => {
+    const p = await makePlugin('native')
+    const manifestPath = path.join(p.dir, 'orca-plugin.json')
+    const manifest = JSON.parse(fs.readFileSync(manifestPath))
+    Object.assign(manifest, { main: 'src/worker.ts', execution: 'trusted-worker', pluginApi: 1, capabilities: [{ kind: 'storage:own' }] })
+    manifest.contributes.panels = [{ id: 'report', title: 'Report', ui: 'components', entry: 'src/panel.tsx' }]
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest))
+    const source = (name, text) => fs.writeFileSync(path.join(p.dir, 'src', name), text)
+    source('worker.ts', `export default function activate(orca) {
+      orca.panels.handle('report.title', () => orca.storage.get('title'))
+    }`)
+    source('panel.check.ts', `import { defineCheck } from 'orca/testing'
+      export default defineCheck({ seeded: { storage: { title: 'April totals' } } })`)
+    source('panel.tsx', `import { atom, Button, Heading, IconButton, Input, plugin, read, set, Stack, Text } from 'orca'
+      const title = atom(''), draft = atom(''), summary = atom('')
+      function refresh() { return plugin.request('report.title').then((t) => set(title, t)) }
+      export function setup() { void refresh() }
+      export default function Panel() {
+        return <Stack><Heading>{read(title)}</Heading>
+          <IconButton label="Refresh" icon="refresh" onPress={refresh} />
+          <Input label="Filter" value={read(draft)} onChange={(v) => set(draft, v)} />
+          <Button onPress={() => set(summary, 'Selected ' + read(draft))}>Prepare</Button>
+          <Text>{read(summary)}</Text></Stack>
+      }`)
+    const stage = { panel: 'report', scenario: 'seeded' }
+    p.spec.cover.stage = { ...stage, waitFor: { text: 'April totals' } }
+    p.spec.screenshots[0].stage = {
+      ...stage, act: [{ type: { label: 'Filter' }, text: 'invoices', replace: true }, { press: { text: 'Prepare' } }],
+      waitFor: { text: 'Selected invoices' },
+    }
+    fs.writeFileSync(p.specPath, JSON.stringify(p.spec))
+    const args = [p.dir, '--spec', p.specPath, '--out-dir', p.work]
+    const build = run([...args, '--check', '--sheet', '--write-manifest'])
+    assert.equal(build.status, 0, build.out)
+    const report = JSON.parse(fs.readFileSync(path.join(p.work, 'report.json')))
+    assert.ok(fs.existsSync(report.sheet))
+    for (const frame of report.results) {
+      assert.equal(frame.stage.panel, 'report')
+      assert.equal(frame.stage.scenario, 'seeded')
+      assert.ok(frame.stage.calls.includes('storage.get'))
+      assert.deepEqual(frame.errors, [])
+      assert.equal(frame.uiPixelsIdentical, true)
+      assert.deepEqual([frame.width, frame.height], [1600, 1000])
+    }
+    const cover = path.join(p.dir, p.spec.cover.out)
+    const before = [sha(cover), sha(manifestPath)]
+    p.spec.cover.stage.scenario = 'missing'
+    fs.writeFileSync(p.specPath, JSON.stringify(p.spec))
+    const failed = run([...args, '--only', 'cover', '--write-manifest'])
+    assert.equal(failed.status, 1, failed.out)
+    assert.match(failed.out, /no scenario "missing"/)
+    assert.deepEqual([sha(cover), sha(manifestPath)], before)
+  })
+
   test('--check --write-manifest rewrites a manifest that still has caption/theme', async () => {
     const p = await makePlugin('write-manifest')
     const r = run([p.dir, '--spec', p.specPath, '--out-dir', p.work, '--check', '--write-manifest'])
