@@ -1329,6 +1329,89 @@
         "developer",
         "workflows"
       ]
+    },
+    {
+      "id": "sergei-popov.test-results",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/Sergei-Popov/orca-test-results.git",
+        "ref": "main"
+      },
+      "releases": [
+        {
+          "version": "0.1.0",
+          "commit": "be0f883c51c95a900973cfb67f9828d3bc5a9a6c",
+          "contentHash": "f38466bb7531356cac4d003ab2e0622348088deee5c5c5010dd4ec13b232d42f",
+          "execution": "trusted-worker",
+          "minimumOrca": "1.4.248",
+          "name": "Test Results",
+          "contributes": [
+            {
+              "kind": "panels",
+              "name": "Test Results"
+            }
+          ],
+          "capabilities": [
+            "workspace:read",
+            "workspace:write"
+          ],
+          "images": {
+            "icon": {
+              "path": "assets/sergei-popov.test-results/images/icon.png",
+              "alt": "Test Results",
+              "sha256": "4e1e41240365549c9959ba89b0b538f9cbea2f3658ccf0f5e82b5a0f3f9229e4",
+              "width": 256,
+              "height": 256
+            },
+            "cover": {
+              "path": "assets/sergei-popov.test-results/images/cover.png",
+              "alt": "Test Results shows 2 failures in a 42-test run, including a date range that resets after refresh.",
+              "sha256": "510bce2f0699ea2cbb0e59300977b39950d3e98e2ef4e6b22b1ca0afadbe16b7",
+              "width": 1600,
+              "height": 1000
+            },
+            "screenshots": [
+              {
+                "path": "assets/sergei-popov.test-results/images/shot-1-report-overview.png",
+                "alt": "Review test-results/junit.xml with 42 tests, 39 passed, 2 failed and 1 skipped. The list shows both failing tests.",
+                "sha256": "ad3f365c4b37fb90857bda97395d0822bdcb66f1d7fc8267e767f6c392deacc5",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.test-results/images/shot-2-pytest-traceback.png",
+                "alt": "Open source points to tests/test_filters.py:10. The pytest traceback shows “All time” where the test expected “Last 30 days”.",
+                "sha256": "4e8117a645878d30e2c8efcc87d63dfff5cfceda11f9ddcdc61ffb33bc84afba",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.test-results/images/shot-3-agent-handoff.png",
+                "alt": "Copy an editable draft for tests/test_filters.py:10 with the report path and the pytest command to rerun the selected test.",
+                "sha256": "234680493b41e24cbf9ffb23fec23ffe5a798a9b8669ad45f0c3a586c414e32c",
+                "width": 1600,
+                "height": 1000
+              },
+              {
+                "path": "assets/sergei-popov.test-results/images/shot-4-passing-run.png",
+                "alt": "All 42 tests passed. The report shows zero failures and zero skipped tests. Shown in Orca's light theme.",
+                "sha256": "448d6c49e1dce5b7041180e66f4af4efd435f5fe7a4d7172051347676846704b",
+                "width": 1600,
+                "height": 1000
+              }
+            ]
+          },
+          "license": "MIT",
+          "repository": "https://github.com/Sergei-Popov/orca-test-results",
+          "changelog": "Added\n\n- A sidebar panel for locally generated JUnit XML. Choose a workspace, load a report by path, or open the newest report found in a supported location.\n- Counts of passed, failed and skipped cases, with assertions and output for up to 100 failures.\n- Source navigation from Node.js reporter file attributes and pytest tracebacks, plus a shortcut to the original XML.\n- An editable agent handoff with the selected test, workspace, report, source and optional rerun command.\n- English and Russian controls, an original listing icon and a gallery of the native panel.",
+          "updatedAt": "2026-11-17"
+        }
+      ],
+      "description": "Review local JUnit test failures and prepare their context for a coding agent.",
+      "categories": [
+        "developer",
+        "testing"
+      ]
     }
   ]
 }
